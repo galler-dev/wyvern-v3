@@ -1,5 +1,7 @@
 const Web3 = require('web3')
 const provider = new Web3.providers.HttpProvider('http://localhost:8545')
+// const provider = new Web3.providers.HttpProvider("https://rinkeby.infura.io/v3/55e6b251278e427f92f04f1e65d5610e")
+// const provider = new Web3.providers.HttpProvider("https://data-seed-prebsc-2-s1.binance.org:8545")
 var web3 = new Web3(provider)
 const { eip712Domain, structHash, signHash } = require('./eip712.js')
 
@@ -77,7 +79,7 @@ const structToSign = (order, exchange) => {
     domain: {
       name: 'Wyvern Exchange',
       version: '3.1',
-      chainId: 50,
+      chainId: 97,
       verifyingContract: exchange
     },
     data: order
@@ -123,8 +125,10 @@ const wrap = (inst) => {
       ])
     ),
     atomicMatchWith: (order, sig, call, counterorder, countersig, countercall, metadata, misc) => inst.atomicMatch_(
-      [order.registry, order.maker, order.staticTarget, order.maximumFill, order.listingTime, order.expirationTime, order.salt, call.target,
-        counterorder.registry, counterorder.maker, counterorder.staticTarget, counterorder.maximumFill, counterorder.listingTime, counterorder.expirationTime, counterorder.salt, countercall.target],
+      [order.registry, order.maker, order.staticTarget, order.maximumFill, order.listingTime, order.expirationTime,
+        order.salt, call.target, counterorder.registry, counterorder.maker, counterorder.staticTarget,
+        counterorder.maximumFill, counterorder.listingTime, counterorder.expirationTime, counterorder.salt,
+        countercall.target],
       [order.staticSelector, counterorder.staticSelector],
       order.staticExtradata, call.data, counterorder.staticExtradata, countercall.data,
       [call.howToCall, countercall.howToCall],

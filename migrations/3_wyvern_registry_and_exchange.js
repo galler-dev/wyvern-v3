@@ -9,7 +9,8 @@ const chainIds = {
   coverage: 50,
   rinkeby: 4,
   mumbai: 80001,
-  main: 1
+  main: 1,
+  bsctest: 97
 }
 
 const personalSignPrefixes = {
@@ -21,11 +22,12 @@ const personalSignPrefixes = {
 module.exports = async (deployer, network) => {
   const personalSignPrefix = personalSignPrefixes[network] || personalSignPrefixes['default']
   await deployer.deploy(WyvernRegistry)
-  await deployer.deploy(WyvernExchange, chainIds[network], [WyvernRegistry.address, '0xa5409ec958C83C3f309868babACA7c86DCB077c1'], Buffer.from(personalSignPrefix,'binary'))
+  await deployer.deploy(WyvernExchange, chainIds[network], [WyvernRegistry.address, '0x9219F446eEBE0336BB2ca909342FdA6d3cD8F70c'], Buffer.from(personalSignPrefix,'binary'))
   if (network !== 'development') {
     setConfig('deployed.' + network + '.WyvernRegistry', WyvernRegistry.address)
     setConfig('deployed.' + network + '.WyvernExchange', WyvernExchange.address)
   }
+  console.log("3_wyvern_registry_and_exchange, network==========================" + network)
   const registry = await WyvernRegistry.deployed()
   await registry.grantInitialAuthentication(WyvernExchange.address)
 }
