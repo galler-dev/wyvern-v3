@@ -79,7 +79,7 @@ const structToSign = (order, exchange) => {
     domain: {
       name: 'Wyvern Exchange',
       version: '3.1',
-      chainId: 97,
+      chainId: NETWORK_INFO[TEST_NETWORK].chainId,
       verifyingContract: exchange
     },
     data: order
@@ -175,6 +175,28 @@ const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 const ZERO_BYTES32 = '0x0000000000000000000000000000000000000000000000000000000000000000'
 const NULL_SIG = {v: 27, r: ZERO_BYTES32, s: ZERO_BYTES32}
 const CHAIN_ID = 50
+const TEST_NETWORK = "bsctest"
+const NETWORK_INFO = {
+  "bsctest": {
+    "url": "https://data-seed-prebsc-2-s1.binance.org:8545",
+    "chainId": 97,
+    "contract": {
+      "wyvernExchange": "0x754ae3541e6c82371804710568b00C8c0243864c",
+      "wyvernStatic": "0x26a41c3Daf11947BdEB42D8651Bac0B6d5914204",
+      "wyvernRegistry": "0xA9b6B94946912E4CC0D981962d960eF257dd4327",
+      "wyvernAtomicizer": "0xeFA3A9A582346E382692c8D54634f0771bdB5fF3",
+      "staticMarket": "0x0694dcC8859CF195e0c2bd38b68be84D1d2c79E5",
+      "testERC20": "0x56a5f8E350BdfB022290C71F8F18daBa60e62646",
+      "testERC721": "0x91409B44BcCC0B3fbBF49fb16bF4b3f571b8bF06",
+      "testERC1271": "0xBdCdD96E4f4118D5F5660B9943903783541Eb548",
+      "testERC1155": "0x3F3790F2155b24314EC99E4a1d8069e53553d477"
+    }
+  },
+  "development": {
+    "url": "http://localhost:8545",
+    "chainId": 50
+  }
+}
 
 module.exports = {
   hashOrder,
@@ -186,5 +208,7 @@ module.exports = {
   ZERO_ADDRESS,
   ZERO_BYTES32,
   NULL_SIG,
-  CHAIN_ID
+  CHAIN_ID,
+  TEST_NETWORK,
+  NETWORK_INFO
 }

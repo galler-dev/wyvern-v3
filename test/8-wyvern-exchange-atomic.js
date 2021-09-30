@@ -11,28 +11,48 @@ const TestERC1271 = artifacts.require('TestERC1271')
 const Web3 = require('web3')
 // const provider = new Web3.providers.HttpProvider('http://localhost:8545')
 // const provider = new Web3.providers.HttpProvider("https://rinkeby.infura.io/v3/55e6b251278e427f92f04f1e65d5610e")
-const provider = new Web3.providers.HttpProvider("https://data-seed-prebsc-2-s1.binance.org:8545")
+// const provider = new Web3.providers.HttpProvider("https://data-seed-prebsc-2-s1.binance.org:8545")
+
+const { wrap,hashOrder,ZERO_BYTES32,randomUint,NULL_SIG,assertIsRejected,TEST_NETWORK,NETWORK_INFO} = require('./aux-win')
+console.log("NETWORK_INFO=" + NETWORK_INFO + ", TEST_NETWORK=" + TEST_NETWORK + ", url=" + NETWORK_INFO[TEST_NETWORK].url)
+const provider = new Web3.providers.HttpProvider(NETWORK_INFO[TEST_NETWORK].url)
 const web3 = new Web3(provider)
 
-const { wrap,hashOrder,ZERO_BYTES32,randomUint,NULL_SIG,assertIsRejected} = require('./aux-win')
-
-
 contract('WyvernExchange', (accounts) => {
-  // const deploy = async contracts => Promise.all(contracts.map(contract => contract.deployed()))
+  const deploy = async contracts => Promise.all(contracts.map(contract => contract.deployed()))
+
+  console.log("contractInfo=" + NETWORK_INFO[TEST_NETWORK].contract)
+  const contractInfo = NETWORK_INFO[TEST_NETWORK].contract
 
   const withContracts = async () =>
     {
+      let exchange,statici,registry,atomicizer,erc20,erc721,erc1271
+      if (TEST_NETWORK == "development") {
+        [exchange,statici,registry,atomicizer,erc20,erc721,erc1271] = await deploy(
+          [WyvernExchange,WyvernStatic,WyvernRegistry,WyvernAtomicizer,TestERC20,TestERC721,TestERC1271])
+        console.log("exchange=" + exchange)
+      } else {
+        [exchange,statici,registry,atomicizer,erc20,erc721,erc1271] = [
+          new WyvernExchange(contractInfo.wyvernExchange),
+          new WyvernStatic(contractInfo.wyvernStatic),
+          new WyvernRegistry(contractInfo.wyvernRegistry),
+          new WyvernAtomicizer(contractInfo.wyvernAtomicizer),
+          new TestERC20(contractInfo.testERC20),
+          new TestERC721(contractInfo.testERC721),
+          new TestERC1271(contractInfo.testERC1271)
+        ]
+      }
     // let [exchange,statici,registry,atomicizer,erc20,erc721,erc1271] = await deploy(
     //   [WyvernExchange,WyvernStatic,WyvernRegistry,WyvernAtomicizer,TestERC20,TestERC721,TestERC1271])
-      let [exchange,statici,registry,atomicizer,erc20,erc721,erc1271] = [
-        new WyvernExchange("0x754ae3541e6c82371804710568b00C8c0243864c"),
-        new WyvernStatic("0x26a41c3Daf11947BdEB42D8651Bac0B6d5914204"),
-        new WyvernRegistry("0xA9b6B94946912E4CC0D981962d960eF257dd4327"),
-        new WyvernAtomicizer("0xeFA3A9A582346E382692c8D54634f0771bdB5fF3"),
-        new TestERC20("0x56a5f8E350BdfB022290C71F8F18daBa60e62646"),
-        new TestERC721("0x91409B44BcCC0B3fbBF49fb16bF4b3f571b8bF06"),
-        new TestERC1271("0xBdCdD96E4f4118D5F5660B9943903783541Eb548")
-      ]
+      // let [exchange,statici,registry,atomicizer,erc20,erc721,erc1271] = [
+      //   new WyvernExchange("0x754ae3541e6c82371804710568b00C8c0243864c"),
+      //   new WyvernStatic("0x26a41c3Daf11947BdEB42D8651Bac0B6d5914204"),
+      //   new WyvernRegistry("0xA9b6B94946912E4CC0D981962d960eF257dd4327"),
+      //   new WyvernAtomicizer("0xeFA3A9A582346E382692c8D54634f0771bdB5fF3"),
+      //   new TestERC20("0x56a5f8E350BdfB022290C71F8F18daBa60e62646"),
+      //   new TestERC721("0x91409B44BcCC0B3fbBF49fb16bF4b3f571b8bF06"),
+      //   new TestERC1271("0xBdCdD96E4f4118D5F5660B9943903783541Eb548")
+      // ]
     console.log("exchange=" + exchange.address + ", statici=" + statici.address + ", registry=" + registry.address +
      ",atomicizer=" + atomicizer.address + ", erc20=" + erc20.address + ", erc721=" + erc721.address + ", erc1271=" + erc1271.address)
     return {exchange:wrap(exchange),statici,registry,atomicizer,erc20,erc721,erc1271}
@@ -50,7 +70,7 @@ contract('WyvernExchange', (accounts) => {
     //   await deployCoreContracts();
     let {atomicizer, exchange, registry, statici, erc20, erc721} = await withContracts()
     // const [erc20, erc721] = await deploy([TestERC20, TestERC721]);
-  
+
     const [
       sellerInitialErc20Balance,
       fee1ReceiptorInitialErc20Balance,
@@ -103,7 +123,7 @@ contract('WyvernExchange', (accounts) => {
     const fee2 = 2;
     var timestamp = Date.parse(new Date());
     const tokenId = timestamp; // 1632746390000;
-  
+
     // await Promise.all([
     //   erc20.mint(buyer, amount + fee1 + fee2),
     //   erc721.mint(seller, tokenId),
@@ -133,10 +153,10 @@ contract('WyvernExchange', (accounts) => {
     //   erc20.approve(buyerProxy, totalAmount, { from: buyer }),
     //   erc721.setApprovalForAll(sellerProxy, true, { from: seller }),
     // ]);
-  
+
     const erc20c = new web3.eth.Contract(erc20.abi, erc20.address);
     const erc721c = new web3.eth.Contract(erc721.abi, erc721.address);
-  
+
     const splitSelector = web3.eth.abi.encodeFunctionSignature(
       "split(bytes,address[7],uint8[2],uint256[6],bytes,bytes)"
     );
@@ -170,7 +190,7 @@ contract('WyvernExchange', (accounts) => {
           countercallExtradata1,
         ]
       );
-  
+
       const params = web3.eth.abi.encodeParameters(
         ["address[2]", "bytes4[2]", "bytes", "bytes"],
         [
@@ -180,11 +200,11 @@ contract('WyvernExchange', (accounts) => {
           extradataCountercall,
         ]
       );
-  
+
       selectorOne = splitSelector;
       extradataOne = params;
     }
-  
+
     const order = {
       registry: registry.address,
       maker: seller,
@@ -269,7 +289,7 @@ contract('WyvernExchange', (accounts) => {
         ["address", "uint256"],
         [erc721.address, tokenId]
       );
-  
+
       const params = web3.eth.abi.encodeParameters(
         ["address[2]", "bytes4[2]", "bytes", "bytes"],
         [
@@ -279,11 +299,11 @@ contract('WyvernExchange', (accounts) => {
           extradataCountercall,
         ]
       );
-  
+
       selectorTwo = splitSelector;
       extradataTwo = params;
     }
-  
+
     const counterOrder = {
       registry: registry.address,
       maker: buyer,
@@ -297,11 +317,11 @@ contract('WyvernExchange', (accounts) => {
     };
     console.log("8 sign counter order")
     const sigCounterOrder = await exchange.sign(counterOrder, buyer);
-  
+
     const firstData = erc721c.methods
       .transferFrom(seller, buyer, tokenId)
       .encodeABI();
-  
+
     const c1 = erc20c.methods.transferFrom(buyer, seller, amount).encodeABI();
     const c2 = erc20c.methods.transferFrom(buyer, fee1Receiptor, fee1).encodeABI();
 
@@ -326,7 +346,7 @@ contract('WyvernExchange', (accounts) => {
       )
       .encodeABI();
     }
-  
+
     const firstCall = { target: erc721.address, howToCall: 0, data: firstData };
     const secondCall = {
       target: atomicizer.address,
@@ -334,7 +354,7 @@ contract('WyvernExchange', (accounts) => {
       data: secondData,
     };
     console.log("firstCall=" + firstCall + ", secondCall=" + secondCall)
-  
+
     await exchange.atomicMatchWith(
       order,
       sigOrder,
@@ -345,7 +365,7 @@ contract('WyvernExchange', (accounts) => {
       ZERO_BYTES32,
       { from: seller } // from: who paid the gas fee.
     );
-  
+
     const [
       sellerErc20Balance,
       fee1ReceiptorErc20Balance,
