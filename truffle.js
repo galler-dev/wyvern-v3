@@ -75,8 +75,9 @@ module.exports = {
       network_id: '4',
       gas: 6700000,
       networkCheckTimeout: 100000,
-      gasPrice: 1600000000,
-      confirmations: 1
+      gasPrice: 1000000010,
+      confirmations: 1,
+      skipDryRun: true
     },
     mumbai: {
       provider: function () {

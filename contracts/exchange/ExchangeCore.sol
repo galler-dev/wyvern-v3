@@ -34,6 +34,10 @@ contract ExchangeCore is ReentrancyGuarded, StaticCaller, EIP712 {
         address maker;
         /* Order static target. */
         address staticTarget;
+        /* Relayer fee, maybe include royalty. */
+        address feeRecipient;
+        /* Royalty fee. */
+        address royaltyFeeRecipient;
         /* Order static selector. */
         bytes4 staticSelector;
         /* Order static extradata. */
@@ -46,6 +50,10 @@ contract ExchangeCore is ReentrancyGuarded, StaticCaller, EIP712 {
         uint expirationTime;
         /* Order salt to prevent duplicate hashes. */
         uint salt;
+        /* Relayer fee */
+        uint relayerFee;
+        /* Royalty fee */
+        uint royaltyFee;
     }
 
     /* A call, convenience struct. */
@@ -62,7 +70,7 @@ contract ExchangeCore is ReentrancyGuarded, StaticCaller, EIP712 {
 
     /* Order typehash for EIP 712 compatibility. */
     bytes32 constant ORDER_TYPEHASH = keccak256(
-        "Order(address registry,address maker,address staticTarget,bytes4 staticSelector,bytes staticExtradata,uint256 maximumFill,uint256 listingTime,uint256 expirationTime,uint256 salt)"
+        "Order(address registry,address maker,address staticTarget,address feeRecipient,address royaltyFeeRecipient,bytes4 staticSelector,bytes staticExtradata,uint256 maximumFill,uint256 listingTime,uint256 expirationTime,uint256 salt,uint256 relayerFee,uint256 royaltyFee)"
     );
 
     /* Variables */
@@ -97,12 +105,16 @@ contract ExchangeCore is ReentrancyGuarded, StaticCaller, EIP712 {
             order.registry,
             order.maker,
             order.staticTarget,
+            order.feeRecipient,
+            order.royaltyFeeRecipient,
             order.staticSelector,
             keccak256(order.staticExtradata),
             order.maximumFill,
             order.listingTime,
             order.expirationTime,
-            order.salt
+            order.salt,
+            order.relayerFee,
+            order.royaltyFee
         ));
     }
 
@@ -212,9 +224,9 @@ contract ExchangeCore is ReentrancyGuarded, StaticCaller, EIP712 {
         returns (bytes memory)
     {
         /* This array wrapping is necessary to preserve static call target function stack space. */
-        address[7] memory addresses = [order.registry, order.maker, call.target, counterorder.registry, counterorder.maker, countercall.target, matcher];
+        address[11] memory addresses = [order.registry, order.maker, call.target, counterorder.registry, counterorder.maker, countercall.target, matcher, order.feeRecipient, order.royaltyFeeRecipient, counterorder.feeRecipient, counterorder.royaltyFeeRecipient];
         AuthenticatedProxy.HowToCall[2] memory howToCalls = [call.howToCall, countercall.howToCall];
-        uint[6] memory uints = [value, order.maximumFill, order.listingTime, order.expirationTime, counterorder.listingTime, fill];
+        uint[10] memory uints = [value, order.maximumFill, order.listingTime, order.expirationTime, counterorder.listingTime, fill, order.relayerFee, order.royaltyFee, counterorder.relayerFee, counterorder.royaltyFee];
         return abi.encodeWithSelector(order.staticSelector, order.staticExtradata, addresses, howToCalls, uints, call.data, countercall.data);
     }
 
