@@ -183,7 +183,7 @@ const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 const ZERO_BYTES32 = '0x0000000000000000000000000000000000000000000000000000000000000000'
 const NULL_SIG = {v: 27, r: ZERO_BYTES32, s: ZERO_BYTES32}
 const CHAIN_ID = 50
-const TEST_NETWORK = "bsctest"
+const TEST_NETWORK = "rinkeby"
 const NETWORK_INFO = {
   "bsctest": {
     "url": "https://data-seed-prebsc-2-s1.binance.org:8545",
@@ -205,17 +205,17 @@ const NETWORK_INFO = {
     "url": "https://rinkeby.infura.io/v3/55e6b251278e427f92f04f1e65d5610e",
     "chainId": 4,
     "contract": {
-        "migrations": "0xb79A0251166f3037e90760Cad32778A5D46e4044",
-        "wyvernAtomicizer": "0xeFA3A9A582346E382692c8D54634f0771bdB5fF3",
-        "wyvernRegistry": "0xA9b6B94946912E4CC0D981962d960eF257dd4327",
-        "wyvernExchange": "0x754ae3541e6c82371804710568b00C8c0243864c",
-        "wyvernStatic": "0x26a41c3Daf11947BdEB42D8651Bac0B6d5914204",
-        "testERC20": "0x56a5f8E350BdfB022290C71F8F18daBa60e62646",
-        "testERC721": "0x91409B44BcCC0B3fbBF49fb16bF4b3f571b8bF06",
-        "staticMarket": "0xaDd93a4893A92fAeA5063b1f1BaabC90fC72D506",
-        "testAuthenticatedProxy": "0xB930d425Dd4Caf3826A3532Dc45B8396e2Aed521",
-        "testERC1271": "0xBdCdD96E4f4118D5F5660B9943903783541Eb548",
-        "testERC1155": "0x6DAf046F507Ce758854f8Cf542c367Bedcc076eb"
+        "migrations": "0x7953A9D98436544F36B1aFcd0Da56302DD340B2a",
+        "wyvernAtomicizer": "0xC3ebE53769282C6502baBd7C376Dab45544e4544",
+        "wyvernRegistry": "0xfdc73058A55934071572EefF9dD7448Ef14987BA",
+        "wyvernExchange": "0x07C0b3a3F1d5794dedB4D37AE307fd30BD5b57E2",
+        "wyvernStatic": "0x754A63120F771D90C749FA0659F5E78A8DA3E562",
+        "testERC20": "0xF7f3943ac6DCd0b784F550E968C71d9cB6336aFF",
+        "testERC721": "0x88ea10AfD23146C2eaeE62628580b45C5Eaf908D",
+        "staticMarket": "0xddfdC45EaFF94e8363F00ff527223787A19a0b66",
+        "testAuthenticatedProxy": "0xB4767Cb5d92812572F6A9222B5E8eF245d55380F",
+        "testERC1271": "0x41b72823f444Aed20608913a65B1d8540c53fE20",
+        "testERC1155": "0xa79039d3562a8A10d788aC3318683827e1B8b47e"
     }
   },
   "development": {

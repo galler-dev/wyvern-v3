@@ -244,6 +244,76 @@ contract StaticMarket {
 		return 1;
 	}
 
+    function ERC721ForERC20WithFee(bytes memory extra,
+        address[11] memory addresses, AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[10] memory uints,
+        bytes memory data, bytes memory counterdata)
+        public
+        pure
+        returns (uint)
+    {
+        require(uints[0] == 0,"ERC721ForERC20WithFee: Zero value required");
+        require(howToCalls[0] == AuthenticatedProxy.HowToCall.Call, "ERC721ForERC20WithFee: call must be a direct call");
+
+        (address[2] memory tokenGiveGet, uint256[2] memory tokenIdAndPrice) = abi.decode(extra, (address[2], uint256[2]));
+
+        require(tokenIdAndPrice[1] > 0,"ERC721ForERC20WithFee: ERC721 price must be larger than zero");
+        require(addresses[2] == tokenGiveGet[0], "ERC721ForERC20WithFee: call target must equal address of token to give");
+        // require(addresses[5] == tokenGiveGet[1], "ERC721ForERC20WithFee: countercall target must equal address of token to get");
+
+        require(addresses[7] == addresses[9], "ERC721ForERC20WithFee: call fee recipient must equal address of countercall");
+        require(addresses[8] == addresses[10], "ERC721ForERC20WithFee: call royalty fee recipient must equal address of countercall");
+
+        require(uints[6] == uints[8], "ERC721ForERC20WithFee: call relayer fee must equal relayer fee of countercall");
+        require(uints[7] == uints[9], "ERC721ForERC20WithFee: call royalty fee must equal royalty fee of countercall");
+
+        uint256[3] memory call_amounts = [
+            getERC20AmountFromCalldataWithFee(counterdata, addresses[7], addresses[8]),
+            getRelayerAmountFromCalldataWithFee(counterdata, addresses[7], addresses[8]),
+            getRoyaltyAmountFromCalldataWithFee(counterdata, addresses[7], addresses[8])
+		];
+        require(tokenIdAndPrice[1] == (call_amounts[0] + call_amounts[1] + call_amounts[2]), "ERC721ForERC20WithFee: The price is inconsistent");
+
+        checkERC721Side(data,addresses[1],addresses[4],tokenIdAndPrice[0]);
+        checkERC20SideWithFee(counterdata,addresses[4],addresses[1],addresses[7],addresses[8],call_amounts[0],uints[6],uints[7]);
+
+        return 1;
+    }
+
+    function ERC20ForERC721WithFee(bytes memory extra,
+        address[11] memory addresses, AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[10] memory uints,
+        bytes memory data, bytes memory counterdata)
+        public
+        pure
+        returns (uint)
+    {
+        require(uints[0] == 0,"ERC20ForERC721WithFee: Zero value required");
+        require(howToCalls[1] == AuthenticatedProxy.HowToCall.Call, "ERC20ForERC721WithFee: call must be a delegate call");
+
+        (address[2] memory tokenGiveGet, uint256[2] memory tokenIdAndPrice) = abi.decode(extra, (address[2], uint256[2]));
+
+        require(tokenIdAndPrice[1] > 0,"ERC20ForERC721WithFee: ERC721 price must be larger than zero");
+        // require(addresses[2] == tokenGiveGet[0], "ERC20ForERC721WithFee: call target must equal address of token to give");
+        require(addresses[5] == tokenGiveGet[1], "ERC20ForERC721WithFee: countercall target must equal address of token to get");
+
+        require(addresses[7] == addresses[9], "ERC20ForERC721WithFee: call fee recipient must equal address of countercall");
+        require(addresses[8] == addresses[10], "ERC20ForERC721WithFee: call royalty fee recipient must equal address of countercall");
+
+        require(uints[6] == uints[8], "ERC20ForERC721WithFee: call relayer fee must equal relayer fee of countercall");
+        require(uints[7] == uints[9], "ERC20ForERC721WithFee: call royalty fee must equal royalty fee of countercall");
+
+		uint256[3] memory call_amounts = [
+			getERC20AmountFromCalldataWithFee(data, addresses[7], addresses[8]),
+            getRelayerAmountFromCalldataWithFee(data, addresses[7], addresses[8]),
+            getRoyaltyAmountFromCalldataWithFee(data, addresses[7], addresses[8])
+		];
+        require(tokenIdAndPrice[1] == (call_amounts[0] + call_amounts[1] + call_amounts[2]), "ERC20ForERC721WithFee: The price is inconsistent");
+
+        checkERC721Side(counterdata,addresses[4],addresses[1],tokenIdAndPrice[0]);
+        checkERC20SideWithFee(data,addresses[1],addresses[4],addresses[7],addresses[8],call_amounts[0],uints[6],uints[7]);
+
+        return 1;
+    }
+
 	function getERC1155AmountFromCalldata(bytes memory data)
 		internal
 		pure
