@@ -16,23 +16,22 @@ contract Exchange is ExchangeCore {
 
     /* external ABI-encodable method wrappers. */
 
-    // function hashOrder_(address registry, address maker, address staticTarget, address feeRecipient, address royaltyFeeRecipient,
-    //     bytes4 staticSelector, bytes calldata staticExtradata, uint maximumFill, uint listingTime, uint expirationTime, uint salt,
-    //     uint relayerFee, uint royaltyFee)
-    //     external
-    //     pure
-    //     returns (bytes32 hash)
-    // {
-    //     return hashOrder(Order(registry, maker, staticTarget, feeRecipient, royaltyFeeRecipient, staticSelector, staticExtradata, maximumFill, listingTime, expirationTime, salt, relayerFee, royaltyFee));
-    // }
-
-    function hashOrder_(address[5] memory addresses, bytes4 staticSelector, bytes calldata staticExtradata, uint[6] memory uints)
+    function hashOrder_(address registry, address maker, address staticTarget,
+        bytes4 staticSelector, bytes calldata staticExtradata, uint maximumFill, uint listingTime, uint expirationTime, uint salt)
         external
         pure
         returns (bytes32 hash)
     {
-        return hashOrder(Order(addresses[0], addresses[1], addresses[2], addresses[3], addresses[4], staticSelector, staticExtradata, uints[0], uints[1], uints[2], uints[3], uints[4], uints[5]));
+        return hashOrder(Order(registry, maker, staticTarget, staticSelector, staticExtradata, maximumFill, listingTime, expirationTime, salt));
     }
+
+    // function hashOrder_(address[5] memory addresses, bytes4 staticSelector, bytes calldata staticExtradata, uint[6] memory uints)
+    //     external
+    //     pure
+    //     returns (bytes32 hash)
+    // {
+    //     return hashOrder(Order(addresses[0], addresses[1], addresses[2], addresses[3], addresses[4], staticSelector, staticExtradata, uints[0], uints[1], uints[2], uints[3], uints[4], uints[5]));
+    // }
 
     function hashToSign_(bytes32 orderHash)
         external
@@ -42,32 +41,31 @@ contract Exchange is ExchangeCore {
         return hashToSign(orderHash);
     }
 
-    // function validateOrderParameters_(address registry, address maker, address staticTarget, address feeRecipient,
-    //     address royaltyFeeRecipient, bytes4 staticSelector, bytes calldata staticExtradata, uint maximumFill,
-    //     uint listingTime, uint expirationTime, uint salt, uint relayerFee, uint royaltyFee)
-    //     external
-    //     view
-    //     returns (bool)
-    // {
-    //     Order memory order;
-    //     bytes32 hashes;
-    //     {
-    //         order = Order(registry, maker, staticTarget, feeRecipient, royaltyFeeRecipient, staticSelector, staticExtradata, maximumFill, listingTime, expirationTime, salt, relayerFee, royaltyFee);
-    //         hashes = hashOrder(order);
-    //     }
-
-    //     return validateOrderParameters(order, hashes);
-    // }
-
-    function validateOrderParameters_(address[5] memory addresses, bytes4 staticSelector, bytes calldata staticExtradata, uint[6] memory uints)
+    function validateOrderParameters_(address registry, address maker, address staticTarget, bytes4 staticSelector, bytes calldata staticExtradata, uint maximumFill,
+        uint listingTime, uint expirationTime, uint salt)
         external
         view
         returns (bool)
     {
-        Order memory order = Order(addresses[0], addresses[1], addresses[2], addresses[3], addresses[4], staticSelector, staticExtradata, uints[0], uints[1], uints[2], uints[3], uints[4], uints[5]);
+        Order memory order;
+        bytes32 hashes;
+        {
+            order = Order(registry, maker, staticTarget, staticSelector, staticExtradata, maximumFill, listingTime, expirationTime, salt);
+            hashes = hashOrder(order);
+        }
 
-        return validateOrderParameters(order, hashOrder(order));
+        return validateOrderParameters(order, hashes);
     }
+
+    // function validateOrderParameters_(address[5] memory addresses, bytes4 staticSelector, bytes calldata staticExtradata, uint[6] memory uints)
+    //     external
+    //     view
+    //     returns (bool)
+    // {
+    //     Order memory order = Order(addresses[0], addresses[1], addresses[2], addresses[3], addresses[4], staticSelector, staticExtradata, uints[0], uints[1], uints[2], uints[3], uints[4], uints[5]);
+
+    //     return validateOrderParameters(order, hashOrder(order));
+    // }
 
     function validateOrderAuthorization_(bytes32 hash, address maker, bytes calldata signature)
         external
@@ -83,22 +81,22 @@ contract Exchange is ExchangeCore {
         return approveOrderHash(hash);
     }
 
-    // function approveOrder_(address registry, address maker, address staticTarget, address feeRecipient, address royaltyFeeRecipient,
-    //     bytes4 staticSelector, bytes calldata staticExtradata, uint maximumFill, uint listingTime, uint expirationTime, uint salt,
-    //     bool orderbookInclusionDesired, uint relayerFee, uint royaltyFee)
-    //     external
-    // {
-    //     return approveOrder(Order(registry, maker, staticTarget, feeRecipient, royaltyFeeRecipient, staticSelector,
-    //         staticExtradata, maximumFill, listingTime, expirationTime, salt, relayerFee, royaltyFee), orderbookInclusionDesired);
-    // }
-
-    function approveOrder_(address[5] memory addresses, bytes4 staticSelector, bytes calldata staticExtradata, uint[6] memory uints,
+    function approveOrder_(address registry, address maker, address staticTarget,
+        bytes4 staticSelector, bytes calldata staticExtradata, uint maximumFill, uint listingTime, uint expirationTime, uint salt,
         bool orderbookInclusionDesired)
         external
     {
-        return approveOrder(Order(addresses[0], addresses[1], addresses[2], addresses[3], addresses[4], staticSelector,
-            staticExtradata, uints[0], uints[1], uints[2], uints[3], uints[4], uints[5]), orderbookInclusionDesired);
+        return approveOrder(Order(registry, maker, staticTarget, staticSelector,
+            staticExtradata, maximumFill, listingTime, expirationTime, salt), orderbookInclusionDesired);
     }
+
+    // function approveOrder_(address[5] memory addresses, bytes4 staticSelector, bytes calldata staticExtradata, uint[6] memory uints,
+    //     bool orderbookInclusionDesired)
+    //     external
+    // {
+    //     return approveOrder(Order(addresses[0], addresses[1], addresses[2], addresses[3], addresses[4], staticSelector,
+    //         staticExtradata, uints[0], uints[1], uints[2], uints[3], uints[4], uints[5]), orderbookInclusionDesired);
+    // }
 
     function setOrderFill_(bytes32 hash, uint fill)
         external
@@ -117,22 +115,37 @@ contract Exchange is ExchangeCore {
     * uints[22]: counterorder's relayer fee
     * uints[23]: counterorder's royalty fee
     */
-    function atomicMatch_(uint[24] memory uints, bytes4[2] memory staticSelectors,
+    // function atomicMatch_(uint[24] memory uints, bytes4[2] memory staticSelectors,
+    //     bytes memory firstExtradata, bytes memory firstCalldata, bytes memory secondExtradata, bytes memory secondCalldata,
+    //     uint8[2] memory howToCalls, bytes32 metadata, bytes memory signatures)
+    //     public
+    //     payable
+    // {
+    //     return atomicMatch(
+    //         Order(address(uints[0]), address(uints[1]), address(uints[2]), address(uints[16]), address(uints[17]),
+    //             staticSelectors[0], firstExtradata, uints[3], uints[4], uints[5], uints[6], uints[20], uints[21]),
+    //         Call(address(uints[7]), AuthenticatedProxy.HowToCall(howToCalls[0]), firstCalldata),
+    //         Order(address(uints[8]), address(uints[9]), address(uints[10]), address(uints[18]), address(uints[19]),
+    //             staticSelectors[1], secondExtradata, uints[11], uints[12], uints[13], uints[14], uints[22], uints[23]),
+    //         Call(address(uints[15]), AuthenticatedProxy.HowToCall(howToCalls[1]), secondCalldata),
+    //         signatures,
+    //         metadata
+    //     );
+    // }
+
+    function atomicMatch_(uint[16] memory uints, bytes4[2] memory staticSelectors,
         bytes memory firstExtradata, bytes memory firstCalldata, bytes memory secondExtradata, bytes memory secondCalldata,
         uint8[2] memory howToCalls, bytes32 metadata, bytes memory signatures)
         public
         payable
     {
         return atomicMatch(
-            Order(address(uints[0]), address(uints[1]), address(uints[2]), address(uints[16]), address(uints[17]),
-                staticSelectors[0], firstExtradata, uints[3], uints[4], uints[5], uints[6], uints[20], uints[21]),
+            Order(address(uints[0]), address(uints[1]), address(uints[2]), staticSelectors[0], firstExtradata, uints[3], uints[4], uints[5], uints[6]),
             Call(address(uints[7]), AuthenticatedProxy.HowToCall(howToCalls[0]), firstCalldata),
-            Order(address(uints[8]), address(uints[9]), address(uints[10]), address(uints[18]), address(uints[19]),
-                staticSelectors[1], secondExtradata, uints[11], uints[12], uints[13], uints[14], uints[22], uints[23]),
+            Order(address(uints[8]), address(uints[9]), address(uints[10]), staticSelectors[1], secondExtradata, uints[11], uints[12], uints[13], uints[14]),
             Call(address(uints[15]), AuthenticatedProxy.HowToCall(howToCalls[1]), secondCalldata),
             signatures,
             metadata
         );
     }
-
 }

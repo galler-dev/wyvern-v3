@@ -82,11 +82,11 @@ contract('WyvernExchange', (accounts) => {
             account_a,
             account_b,
             sender,
-            transactions } = options
+            transactions,
+            hasRelayerFee,
+            hasRoyaltyFee
+         } = options
 
-        var transferToUniqueAddress = false
-        var noRelayerFee = false
-        var noRoyaltyFee = false
         const txCount = transactions || 1
 
         let { exchange, registry, atomicizer, statici, erc20, erc1155 } = await deploy_contracts()
@@ -145,33 +145,52 @@ contract('WyvernExchange', (accounts) => {
 
         const erc1155c = new web3.eth.Contract(erc1155.abi, erc1155.address)
         const erc20c = new web3.eth.Contract(erc20.abi, erc20.address)
-        const selectorOne = web3.eth.abi.encodeFunctionSignature('anyERC1155ForERC20WithFee(bytes,address[11],uint8[2],uint256[10],bytes,bytes)')
-        const selectorTwo = web3.eth.abi.encodeFunctionSignature('anyERC20ForERC1155WithFee(bytes,address[11],uint8[2],uint256[10],bytes,bytes)')
+        const selectorOne = web3.eth.abi.encodeFunctionSignature('anyERC1155ForERC20WithFee(bytes,address[7],uint8[2],uint256[6],bytes,bytes)')
+        const selectorTwo = web3.eth.abi.encodeFunctionSignature('anyERC20ForERC1155WithFee(bytes,address[7],uint8[2],uint256[6],bytes,bytes)')
 
-        const paramsOne = web3.eth.abi.encodeParameters(
-            ['address[2]', 'uint256[3]'],
-            [[erc1155.address, erc20.address], [tokenId, sellingNumerator || 1, sellingPrice]]
-        )
-
-        const paramsTwo = web3.eth.abi.encodeParameters(
-            ['address[2]', 'uint256[3]'],
-            [[erc20.address, erc1155.address], [buyTokenId || tokenId, buyingPrice, buyingDenominator || 1]]
-        )
-
-        let relayerFee = 5;
+        let relayerFee = 2;
         let royaltyFee = 8;
-        if (noRelayerFee) {
-            relayerFeeAddress = ZERO_ADDRESS;
+        if (!hasRelayerFee) {
             relayerFee = 0;
-        } else {
-            if (transferToUniqueAddress) {
-                royaltyFeeAddress = ZERO_ADDRESS;
-                royaltyFee = 0;
-            }
+        }
+        if (!hasRelayerFee) {
+            royaltyFee = 0;
         }
 
-        const one = { registry: registry.address, maker: account_a, staticTarget: statici.address, feeRecipient: relayerFeeAddress, royaltyFeeRecipient: royaltyFeeAddress, staticSelector: selectorOne, staticExtradata: paramsOne, maximumFill: (sellingNumerator || 1) * sellAmount, listingTime: '0', expirationTime: '10000000000', salt: '11', relayerFee: relayerFee, royaltyFee: royaltyFee }
-        const two = { registry: registry.address, maker: account_b, staticTarget: statici.address, feeRecipient: relayerFeeAddress, royaltyFeeRecipient: royaltyFeeAddress, staticSelector: selectorTwo, staticExtradata: paramsTwo, maximumFill: buyingPrice * buyAmount, listingTime: '0', expirationTime: '10000000000', salt: '12', relayerFee: relayerFee, royaltyFee: royaltyFee }
+        const finalSellingPrice = sellingPrice - relayerFee - royaltyFee
+        let addressesOne = [erc1155.address, erc20.address]
+        let tokenIdAndNumberOne = [tokenId, sellingNumerator || 1, finalSellingPrice]
+        if (hasRelayerFee) {
+            addressesOne.push(relayerFeeAddress)
+            tokenIdAndNumberOne.push(relayerFee)
+        }
+        if (hasRoyaltyFee) {
+            addressesOne.push(royaltyFeeAddress)
+            tokenIdAndNumberOne.push(royaltyFee)
+        }
+        const paramsOne = web3.eth.abi.encodeParameters(
+            ['address[]', 'uint256[]'],
+            [addressesOne, tokenIdAndNumberOne]
+        )
+
+        const finalBuyingPrice = buyingPrice - relayerFee - royaltyFee
+        let addressesTwo = [erc20.address, erc1155.address]
+        let tokenIdAndNumberTwo = [buyTokenId || tokenId, finalBuyingPrice, buyingDenominator || 1]
+        if (hasRelayerFee) {
+            addressesTwo.push(relayerFeeAddress)
+            tokenIdAndNumberTwo.push(relayerFee)
+        }
+        if (hasRoyaltyFee) {
+            addressesTwo.push(royaltyFeeAddress)
+            tokenIdAndNumberTwo.push(royaltyFee)
+        }
+        const paramsTwo = web3.eth.abi.encodeParameters(
+            ['address[]', 'uint256[]'],
+            [addressesTwo, tokenIdAndNumberTwo]
+        )
+
+        const one = { registry: registry.address, maker: account_a, staticTarget: statici.address, staticSelector: selectorOne, staticExtradata: paramsOne, maximumFill: (sellingNumerator || 1) * sellAmount, listingTime: '0', expirationTime: '10000000000', salt: '11' }
+        const two = { registry: registry.address, maker: account_b, staticTarget: statici.address, staticSelector: selectorTwo, staticExtradata: paramsTwo, maximumFill: buyingPrice * buyAmount, listingTime: '0', expirationTime: '10000000000', salt: '12' }
 
         const firstData = erc1155c.methods.safeTransferFrom(account_a, account_b, tokenId, sellingNumerator || buyAmount, "0x").encodeABI() + ZERO_BYTES32.substr(2)
         // const secondData = erc20c.methods.transferFrom(account_b, account_a, buyAmount * buyingPrice).encodeABI()
@@ -181,29 +200,34 @@ contract('WyvernExchange', (accounts) => {
         const secondDataTransferRelayerFee = erc20c.methods.transferFrom(account_b, relayerFeeAddress, relayerFee).encodeABI()
         const secondDataTransferRoyaltyFee = erc20c.methods.transferFrom(account_b, royaltyFeeAddress, royaltyFee).encodeABI()
         let secondData
-        if (noRelayerFee) {
+        if (hasRelayerFee && hasRoyaltyFee) {
+            secondData = atomicizerc.methods.atomicize(
+                [erc20.address, erc20.address, erc20.address],
+                [0, 0, 0],
+                [(secondDataTransferRemain.length - 2) / 2, (secondDataTransferRelayerFee.length - 2) / 2, (secondDataTransferRoyaltyFee.length - 2) / 2],
+                secondDataTransferRemain + secondDataTransferRelayerFee.slice("2") + secondDataTransferRoyaltyFee.slice("2")
+            ).encodeABI();
+        } else if (hasRelayerFee) {
+            secondData = atomicizerc.methods.atomicize(
+                [erc20.address, erc20.address],
+                [0, 0],
+                [(secondDataTransferRemain.length - 2) / 2, (secondDataTransferRelayerFee.length - 2) / 2],
+                secondDataTransferRemain + secondDataTransferRelayerFee.slice("2")
+            ).encodeABI();
+        } else if (hasRoyaltyFee) {
+            secondData = atomicizerc.methods.atomicize(
+                [erc20.address, erc20.address],
+                [0, 0],
+                [(secondDataTransferRemain.length - 2) / 2, (secondDataTransferRoyaltyFee.length - 2) / 2],
+                secondDataTransferRemain + secondDataTransferRoyaltyFee.slice("2")
+            ).encodeABI();
+        } else {
             secondData = atomicizerc.methods.atomicize(
                 [erc20.address],
                 [0],
                 [(secondDataTransferRemain.length - 2) / 2],
                 secondDataTransferRemain
             ).encodeABI();
-        } else {
-            if (transferToUniqueAddress) {
-                secondData = atomicizerc.methods.atomicize(
-                    [erc20.address, erc20.address],
-                    [0, 0],
-                    [(secondDataTransferRemain.length - 2) / 2, (secondDataTransferRelayerFee.length - 2) / 2],
-                    secondDataTransferRemain + secondDataTransferRelayerFee.slice("2")
-                ).encodeABI();
-            } else {
-                secondData = atomicizerc.methods.atomicize(
-                    [erc20.address, erc20.address, erc20.address],
-                    [0, 0, 0],
-                    [(secondDataTransferRemain.length - 2) / 2, (secondDataTransferRelayerFee.length - 2) / 2, (secondDataTransferRoyaltyFee.length - 2) / 2],
-                    secondDataTransferRemain + secondDataTransferRelayerFee.slice("2") + secondDataTransferRoyaltyFee.slice("2")
-                ).encodeABI();
-            }
         }
 
         const firstCall = { target: erc1155.address, howToCall: 0, data: firstData }
@@ -231,14 +255,13 @@ contract('WyvernExchange', (accounts) => {
         console.log("9 account_a_erc20_balance=" + account_a_erc20_balance + ", account_b_erc1155_balance=" + account_b_erc1155_balance)
         assert.equal(account_a_erc20_balance.toNumber(), account_a_initial_erc20_balance.toNumber() + remainAmountAfterFee * txCount, 'Incorrect ERC20 balance')
         assert.equal(account_b_erc1155_balance.toNumber(), account_b_initial_erc1155_balance.toNumber() + (sellingNumerator || (buyAmount * txCount)), 'Incorrect ERC1155 balance')
-        if (!noRelayerFee) {
+        if (hasRelayerFee) {
             let relayer_erc20_balance = await erc20.balanceOf(relayerFeeAddress);
-            if (transferToUniqueAddress) {
-                assert.equal(relayer_erc20_balance.toNumber(), relayer_initial_erc20_balance.toNumber() + relayerFee + royaltyFee)
-            } else {
-                assert.equal(relayer_erc20_balance.toNumber(), relayer_initial_erc20_balance.toNumber() + relayerFee)
-            }
-
+            assert.equal(relayer_erc20_balance.toNumber(), relayer_initial_erc20_balance.toNumber() + relayerFee)
+        }
+        if (hasRoyaltyFee) {
+            let royalty_erc20_balance = await erc20.balanceOf(royaltyFeeAddress);
+            assert.equal(royalty_erc20_balance.toNumber(), royalty_initial_erc20_balance.toNumber() + royaltyFee)
         }
     }
 
@@ -257,7 +280,9 @@ contract('WyvernExchange', (accounts) => {
             erc20MintAmount: price,
             account_a: accounts[1],
             account_b: accounts[2],
-            sender: accounts[1]
+            sender: accounts[1],
+            hasRelayerFee: false,
+            hasRoyaltyFee: false
         })
     })
 
@@ -360,17 +385,17 @@ contract('WyvernExchange', (accounts) => {
         assert.equal(token_owner, account_b, 'Incorrect token owner')
     }
 
-    it('StaticMarket: matches erc721 <> erc20 order', async () => {
-        const price = 150
+    // it('StaticMarket: matches erc721 <> erc20 order', async () => {
+    //     const price = 150
 
-        return erc721_for_erc20_test_with_fee({
-            tokenId: 10,
-            sellingPrice: price,
-            buyingPrice: price,
-            erc20MintAmount: price,
-            account_a: accounts[1],
-            account_b: accounts[2],
-            sender: accounts[1]
-        })
-    })
+    //     return erc721_for_erc20_test_with_fee({
+    //         tokenId: 10,
+    //         sellingPrice: price,
+    //         buyingPrice: price,
+    //         erc20MintAmount: price,
+    //         account_a: accounts[1],
+    //         account_b: accounts[2],
+    //         sender: accounts[1]
+    //     })
+    // })
 })
