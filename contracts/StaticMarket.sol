@@ -51,51 +51,6 @@ contract StaticMarket {
 		return new_fill;
 	}
 
-	// function anyERC1155ForERC20WithFee(bytes memory extra,
-	// 	address[11] memory addresses, AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[10] memory uints,
-	// 	bytes memory data, bytes memory counterdata)
-	// 	public
-	// 	pure
-	// 	returns (uint)
-	// {
-	// 	require(uints[0] == 0,"anyERC1155ForERC20: Zero value required");
-	// 	require(howToCalls[0] == AuthenticatedProxy.HowToCall.Call, "anyERC1155ForERC20: call must be a direct call");
-
-	// 	(address[2] memory tokenGiveGet, uint256[3] memory tokenIdAndNumeratorDenominator) = abi.decode(extra, (address[2], uint256[3]));
-
-	// 	require(tokenIdAndNumeratorDenominator[1] > 0,"anyERC20ForERC1155: numerator must be larger than zero");
-	// 	require(tokenIdAndNumeratorDenominator[2] > 0,"anyERC20ForERC1155: denominator must be larger than zero");
-	// 	require(addresses[2] == tokenGiveGet[0], "anyERC1155ForERC20: call target must equal address of token to give");
-    //     // addresses[5] is the address of WyvernAtomicizer. How to check it?
-	// 	// require(addresses[5] == tokenGiveGet[1], "anyERC1155ForERC20: countercall target must equal address of token to get");
-
-    //     require(addresses[7] == addresses[9], "anyERC1155ForERC20: call fee recipient must equal address of countercall");
-    //     require(addresses[8] == addresses[10], "anyERC1155ForERC20: call royalty fee recipient must equal address of countercall");
-
-    //     require(uints[6] == uints[8], "anyERC1155ForERC20: call relayer fee must equal relayer fee of countercall");
-    //     require(uints[7] == uints[9], "anyERC1155ForERC20: call royalty fee must equal royalty fee of countercall");
-
-	// 	uint256[4] memory call_amounts = [
-	// 		getERC1155AmountFromCalldata(data),
-	// 		getERC20AmountFromCalldataWithFee(counterdata, addresses[7], addresses[8]),
-    //         getRelayerAmountFromCalldataWithFee(counterdata, addresses[7], addresses[8]),
-    //         getRoyaltyAmountFromCalldataWithFee(counterdata, addresses[7], addresses[8])
-	// 	];
-    //     uint256 new_fill = 0;
-    //     {
-    //         new_fill = SafeMath.add(uints[5],call_amounts[0]);
-    //         require(new_fill <= uints[1],"anyERC1155ForERC20: new fill exceeds maximum fill");
-    //         uint256 counterAmount = call_amounts[1] + call_amounts[2] + call_amounts[3];
-    //         require(SafeMath.mul(tokenIdAndNumeratorDenominator[1], counterAmount) == SafeMath.mul(tokenIdAndNumeratorDenominator[2], call_amounts[0]),"anyERC1155ForERC20: wrong ratio");
-    //     }
-
-	// 	checkERC1155Side(data,addresses[1],addresses[4],tokenIdAndNumeratorDenominator[0],call_amounts[0]);
-	// 	// checkERC20Side(counterdata,addresses[4],addresses[1],call_amounts[1]);
-    //     checkERC20SideWithFee(counterdata,addresses[4],addresses[1],addresses[7],addresses[8],call_amounts[1],uints[6],uints[7]);
-
-	// 	return new_fill;
-	// }
-
 	function anyERC20ForERC1155(bytes memory extra,
 		address[7] memory addresses, AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[6] memory uints,
 		bytes memory data, bytes memory counterdata)
@@ -298,72 +253,90 @@ contract StaticMarket {
 		return 1;
 	}
 
-    function ERC721ForERC20WithFee(bytes memory extra,
-        address[11] memory addresses, AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[10] memory uints,
+    function ERC721ForERC20WithOneFee(bytes memory extra,
+        address[7] memory addresses, AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[6] memory uints,
         bytes memory data, bytes memory counterdata)
         public
         pure
         returns (uint)
     {
-        require(uints[0] == 0,"ERC721ForERC20WithFee: Zero value required");
-        require(howToCalls[0] == AuthenticatedProxy.HowToCall.Call, "ERC721ForERC20WithFee: call must be a direct call");
+        require(uints[0] == 0,"ERC721ForERC20WithOneFee: Zero value required");
+        require(howToCalls[0] == AuthenticatedProxy.HowToCall.Call, "ERC721ForERC20WithOneFee: call must be a direct call");
 
-        (address[2] memory tokenGiveGet, uint256[2] memory tokenIdAndPrice) = abi.decode(extra, (address[2], uint256[2]));
+        (address[3] memory tokenGiveGetAndFeeRecipient, uint256[3] memory tokenIdAndPriceAndFee) = abi.decode(extra, (address[3], uint256[3]));
 
-        require(tokenIdAndPrice[1] > 0,"ERC721ForERC20WithFee: ERC721 price must be larger than zero");
-        require(addresses[2] == tokenGiveGet[0], "ERC721ForERC20WithFee: call target must equal address of token to give");
-        // require(addresses[5] == tokenGiveGet[1], "ERC721ForERC20WithFee: countercall target must equal address of token to get");
+        require(tokenIdAndPriceAndFee[1] > 0,"ERC721ForERC20WithOneFee: ERC721 price must be larger than zero");
+        require(addresses[2] == tokenGiveGetAndFeeRecipient[0], "ERC721ForERC20WithOneFee: call target must equal address of token to give");
+        // require(addresses[5] == tokenGiveGetAndFeeRecipient[1], "ERC721ForERC20WithOneFee: countercall target must equal address of token to get");
 
-        require(addresses[7] == addresses[9], "ERC721ForERC20WithFee: call fee recipient must equal address of countercall");
-        require(addresses[8] == addresses[10], "ERC721ForERC20WithFee: call royalty fee recipient must equal address of countercall");
-
-        require(uints[6] == uints[8], "ERC721ForERC20WithFee: call relayer fee must equal relayer fee of countercall");
-        require(uints[7] == uints[9], "ERC721ForERC20WithFee: call royalty fee must equal royalty fee of countercall");
-
-        uint256[3] memory call_amounts = [
-            getERC20AmountFromCalldataWithFee1(counterdata, addresses[7], addresses[8]),
-            getRelayerAmountFromCalldataWithFee(counterdata, addresses[7], addresses[8]),
-            getRoyaltyAmountFromCalldataWithFee(counterdata, addresses[7], addresses[8])
-		];
-        require(tokenIdAndPrice[1] == (call_amounts[0] + call_amounts[1] + call_amounts[2]), "ERC721ForERC20WithFee: The price is inconsistent");
-
-        checkERC721Side(data,addresses[1],addresses[4],tokenIdAndPrice[0]);
-        // checkERC20SideWithFee(counterdata,addresses[4],addresses[1],addresses[7],addresses[8],call_amounts[0],uints[6],uints[7]);
+        checkERC721Side(data,addresses[1],addresses[4],tokenIdAndPriceAndFee[0]);
+        checkERC20SideWithOneFee(counterdata,addresses[4],addresses[1],tokenGiveGetAndFeeRecipient[2],tokenIdAndPriceAndFee[1],tokenIdAndPriceAndFee[2]);
 
         return 1;
     }
 
-    function ERC20ForERC721WithFee(bytes memory extra,
-        address[11] memory addresses, AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[10] memory uints,
+    function ERC721ForERC20WithTwoFees(bytes memory extra,
+        address[7] memory addresses, AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[6] memory uints,
         bytes memory data, bytes memory counterdata)
         public
         pure
         returns (uint)
     {
-        require(uints[0] == 0,"ERC20ForERC721WithFee: Zero value required");
+        require(uints[0] == 0,"ERC721ForERC20WithTwoFees: Zero value required");
+        require(howToCalls[0] == AuthenticatedProxy.HowToCall.Call, "ERC721ForERC20WithTwoFees: call must be a direct call");
+
+        (address[4] memory tokenGiveGetAndFeeRecipient, uint256[4] memory tokenIdAndPriceAndFee) = abi.decode(extra, (address[4], uint256[4]));
+
+        require(tokenIdAndPriceAndFee[1] > 0,"ERC721ForERC20WithTwoFees: ERC721 price must be larger than zero");
+        require(addresses[2] == tokenGiveGetAndFeeRecipient[0], "ERC721ForERC20WithTwoFees: call target must equal address of token to give");
+        // require(addresses[5] == tokenGiveGetAndFeeRecipient[1], "ERC721ForERC20WithTwoFees: countercall target must equal address of token to get");
+
+        checkERC721Side(data,addresses[1],addresses[4],tokenIdAndPriceAndFee[0]);
+        checkERC20SideWithTwoFees(counterdata,addresses[4],addresses[1],tokenGiveGetAndFeeRecipient[2],tokenGiveGetAndFeeRecipient[3],tokenIdAndPriceAndFee[1],tokenIdAndPriceAndFee[2],tokenIdAndPriceAndFee[3]);
+
+        return 1;
+    }
+
+    function ERC20ForERC721WithOneFee(bytes memory extra,
+        address[7] memory addresses, AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[6] memory uints,
+        bytes memory data, bytes memory counterdata)
+        public
+        pure
+        returns (uint)
+    {
+        require(uints[0] == 0,"ERC20ForERC721WithOneFee: Zero value required");
         require(howToCalls[1] == AuthenticatedProxy.HowToCall.Call, "ERC20ForERC721WithFee: call must be a delegate call");
 
-        (address[2] memory tokenGiveGet, uint256[2] memory tokenIdAndPrice) = abi.decode(extra, (address[2], uint256[2]));
+        (address[3] memory tokenGiveGetAndFeeRecipient, uint256[3] memory tokenIdAndPriceAndFee) = abi.decode(extra, (address[3], uint256[3]));
 
-        require(tokenIdAndPrice[1] > 0,"ERC20ForERC721WithFee: ERC721 price must be larger than zero");
-        // require(addresses[2] == tokenGiveGet[0], "ERC20ForERC721WithFee: call target must equal address of token to give");
-        require(addresses[5] == tokenGiveGet[1], "ERC20ForERC721WithFee: countercall target must equal address of token to get");
+        require(tokenIdAndPriceAndFee[1] > 0,"ERC20ForERC721WithOneFee: ERC721 price must be larger than zero");
+        // require(addresses[2] == tokenGiveGetAndFeeRecipient[0], "ERC20ForERC721WithOneFee: call target must equal address of token to give");
+        require(addresses[5] == tokenGiveGetAndFeeRecipient[1], "ERC20ForERC721WithOneFee: countercall target must equal address of token to get");
 
-        require(addresses[7] == addresses[9], "ERC20ForERC721WithFee: call fee recipient must equal address of countercall");
-        require(addresses[8] == addresses[10], "ERC20ForERC721WithFee: call royalty fee recipient must equal address of countercall");
+        checkERC721Side(counterdata,addresses[4],addresses[1],tokenIdAndPriceAndFee[0]);
+        checkERC20SideWithOneFee(data,addresses[1],addresses[4],tokenGiveGetAndFeeRecipient[2],tokenIdAndPriceAndFee[1],tokenIdAndPriceAndFee[2]);
 
-        require(uints[6] == uints[8], "ERC20ForERC721WithFee: call relayer fee must equal relayer fee of countercall");
-        require(uints[7] == uints[9], "ERC20ForERC721WithFee: call royalty fee must equal royalty fee of countercall");
+        return 1;
+    }
 
-		uint256[3] memory call_amounts = [
-			getERC20AmountFromCalldataWithFee1(data, addresses[7], addresses[8]),
-            getRelayerAmountFromCalldataWithFee(data, addresses[7], addresses[8]),
-            getRoyaltyAmountFromCalldataWithFee(data, addresses[7], addresses[8])
-		];
-        require(tokenIdAndPrice[1] == (call_amounts[0] + call_amounts[1] + call_amounts[2]), "ERC20ForERC721WithFee: The price is inconsistent");
+    function ERC20ForERC721WithTwoFees(bytes memory extra,
+        address[7] memory addresses, AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[6] memory uints,
+        bytes memory data, bytes memory counterdata)
+        public
+        pure
+        returns (uint)
+    {
+        require(uints[0] == 0,"ERC20ForERC721WithOneFee: Zero value required");
+        require(howToCalls[1] == AuthenticatedProxy.HowToCall.Call, "ERC20ForERC721WithFee: call must be a delegate call");
 
-        checkERC721Side(counterdata,addresses[4],addresses[1],tokenIdAndPrice[0]);
-        // checkERC20SideWithFee(data,addresses[1],addresses[4],addresses[7],addresses[8],call_amounts[0],uints[6],uints[7]);
+        (address[4] memory tokenGiveGetAndFeeRecipient, uint256[4] memory tokenIdAndPriceAndFee) = abi.decode(extra, (address[4], uint256[4]));
+
+        require(tokenIdAndPriceAndFee[1] > 0,"ERC20ForERC721WithOneFee: ERC721 price must be larger than zero");
+        // require(addresses[2] == tokenGiveGetAndFeeRecipient[0], "ERC20ForERC721WithOneFee: call target must equal address of token to give");
+        require(addresses[5] == tokenGiveGetAndFeeRecipient[1], "ERC20ForERC721WithOneFee: countercall target must equal address of token to get");
+
+        checkERC721Side(counterdata,addresses[4],addresses[1],tokenIdAndPriceAndFee[0]);
+        checkERC20SideWithTwoFees(data,addresses[1],addresses[4],tokenGiveGetAndFeeRecipient[2],tokenGiveGetAndFeeRecipient[3],tokenIdAndPriceAndFee[1],tokenIdAndPriceAndFee[2],tokenIdAndPriceAndFee[3]);
 
         return 1;
     }
@@ -575,4 +548,21 @@ contract StaticMarket {
         // }
 		// require(ArrayUtils.arrayEq(data, abi.encodeWithSignature("transferFrom(address,address,uint256)", from, to, amount)));
 	}
+
+    function checkERC20SideWithOneFee(bytes memory data, address from, address to, address feeRecipient, uint256 amount, uint256 fee)
+        internal
+        pure
+    {
+        require(ArrayUtils.arrayEq(ArrayUtils.arraySlice(data, 452, 100), abi.encodeWithSignature("transferFrom(address,address,uint256)", from, to, amount)));
+        require(ArrayUtils.arrayEq(ArrayUtils.arraySlice(data, 552, 100), abi.encodeWithSignature("transferFrom(address,address,uint256)", from, feeRecipient, fee)));
+    }
+
+    function checkERC20SideWithTwoFees(bytes memory data, address from, address to, address feeRecipient, address royaltyFeeRecipient, uint256 amount, uint256 fee, uint256 royaltyFee)
+        internal
+        pure
+    {
+        require(ArrayUtils.arrayEq(ArrayUtils.arraySlice(data, 548, 100), abi.encodeWithSignature("transferFrom(address,address,uint256)", from, to, amount)));
+        require(ArrayUtils.arrayEq(ArrayUtils.arraySlice(data, 648, 100), abi.encodeWithSignature("transferFrom(address,address,uint256)", from, feeRecipient, fee)));
+        require(ArrayUtils.arrayEq(ArrayUtils.arraySlice(data, 748, 100), abi.encodeWithSignature("transferFrom(address,address,uint256)", from, royaltyFeeRecipient, royaltyFee)));
+    }
 }

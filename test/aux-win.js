@@ -186,33 +186,33 @@ const NETWORK_INFO = {
     "url": "https://data-seed-prebsc-2-s1.binance.org:8545",
     "chainId": 97,
     "contract": {
-        "wyvernAtomicizer": "0x7663727b645CA71DBB66d1E550d78707f1A8fe43",
-        "wyvernStatic": "0x87A72EF16145E5055BC5F1e34008A84A30B21FdF",
-        "staticMarket": "0xEc01DA8d033f7c7ab1fA7Fc82D2539f46fB31752",
-        "testERC20": "0x6e8CCAF81E9A2793B7fC446CC1b91471f53b8A72",
-        "testERC721": "0x2D64D98e4A2E4701997299E056bF2a67194651f1",
-        "testAuthenticatedProxy": "0xE760866Aa22273f101A2bc7bdbfF5CEFA9E60267",
-        "testERC1271": "0xb6d4f8854246aF95D93f65658470390a9b5adbbD",
-        "testERC1155": "0xc9052194C1ECA36999E4F2f9Abb02dFfdFbf8B3e",
-        "wyvernRegistry": "0x110a2B0c0EeD99579e2f23C2795D99e71d904e66",
-        "wyvernExchange": "0xdb5eE3fa5f2346d5739Cd7b3f3009f1faeED7627"
+        "wyvernAtomicizer": "0x4821bbc953F3e24b35951ea8289a329A2D644976",
+        "wyvernStatic": "0xCCA2FACd7F9bE96Aa84B618009C6A782A0Afa651",
+        "staticMarket": "0x7882e3999826066125517AF1eaF45d5994F4FD01",
+        "testERC20": "0x07367ED59115e508d89b831d8cA2a82D1aBa0Bd3",
+        "testERC721": "0xe2078d1FBdE9286B68E06207149370865768eff5",
+        "testAuthenticatedProxy": "0x0E2FF10020d762B533414409432e26A9836021A7",
+        "testERC1271": "0x72A0dFeF6e700fcD9994099D4bCdC2527092b49a",
+        "testERC1155": "0x4828Ca87b4cdD8ab819723F6D0EC23Bc2Fa975F0",
+        "wyvernRegistry": "0xA38332465a6EaEBbB1e334ef20f14f99d7781468",
+        "wyvernExchange": "0xeE07267d8a49954B653FbDaB225b2b89e46fCc88"
     }
   },
   "rinkeby": {
     "url": "https://rinkeby.infura.io/v3/55e6b251278e427f92f04f1e65d5610e",
     "chainId": 4,
     "contract": {
-        "migrations": "0x9d154afF5040d7944CF671127c30c61FfFfcECA1",
-        "wyvernAtomicizer": "0xaB99D2376138dFC18B8b6f81D105dC1B1F58c498",
-        "wyvernRegistry": "0x173d919A0f11B15c15d25B38e82578690910CD2F",
-        "wyvernExchange": "0xA52c341a29698b7595b8eD023AA81c2040E30eFB",
-        "wyvernStatic": "0xa860DE7Bf6b70a7d954E701793eC22457eb5ED0a",
-        "testERC20": "0x3F3790F2155b24314EC99E4a1d8069e53553d477",
-        "testERC721": "0x247683DD3a2FFF836895B9A44B01A70a440937Ef",
-        "staticMarket": "0xB14C901bF95008DFDbE4F5256d5F5Dad0BE9C4e5",
-        "testAuthenticatedProxy": "0x920aD1994BdcA9a70F5eb7bBDE36724A074442BC",
-        "testERC1271": "0x1a2B60Ccd8883E26910B61A181851a8f3d344F0a",
-        "testERC1155": "0x800eB5B8313D9BF812AEae9860239EAd1787e16C"
+        "migrations": "0x71b11005f2Bb0D9d56BC8d5F4f9c436F70f733eE",
+        "wyvernAtomicizer": "0x3897279d7e6eE5658Ee4E44288D5eab786321d84",
+        "wyvernRegistry": "0x7Ec4305b350103a78287b78c2CF730d3ae07846a",
+        "wyvernExchange": "0xd35D65323aaE7A886486b804bb5c2652cf307586",
+        "wyvernStatic": "0x03127Ac868aD6058752C7cE4d3aFdC3275F67376",
+        "testERC20": "0x84745D0DB5a09bfb4C9C3e765ddC3BAA1bC5838a",
+        "testERC721": "0xfB394fb2c8e32bf7d2A7398c8aa39830c1A4D640",
+        "staticMarket": "0xCaea1cb172B47408ab6B870Eb8e1e5d3633Ee592",
+        "testAuthenticatedProxy": "0x0b52533F5EB6f08627359d63A7b80BCf90E9AE07",
+        "testERC1271": "0xe9b8A4D4f2dEa4B9D3d6e2FF19e7ce7B4E298929",
+        "testERC1155": "0x5CBaaEe5E5536c8b128afbDBF140BfBACa1dD469"
     }
   },
   "development": {
