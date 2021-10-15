@@ -35,6 +35,51 @@ contract('WyvernExchange', (accounts) => {
             stateMutability: "nonpayable",
             type: "function",
         },
+        {
+            constant: false,
+            inputs: [
+                { name: "addrs", type: "address[]" },
+                { name: "values", type: "uint256[]" },
+                { name: "calldata0", type: "bytes" },
+                { name: "calldata1", type: "bytes" },
+            ],
+            name: "atomicize2",
+            outputs: [],
+            payable: false,
+            stateMutability: "nonpayable",
+            type: "function",
+        },
+        {
+            constant: false,
+            inputs: [
+                { name: "addrs", type: "address[]" },
+                { name: "values", type: "uint256[]" },
+                { name: "calldata0", type: "bytes" },
+                { name: "calldata1", type: "bytes" },
+                { name: "calldata2", type: "bytes" },
+            ],
+            name: "atomicize3",
+            outputs: [],
+            payable: false,
+            stateMutability: "nonpayable",
+            type: "function",
+        },
+        {
+            constant: false,
+            inputs: [
+                { name: "addrs", type: "address[]" },
+                { name: "values", type: "uint256[]" },
+                { name: "calldata0", type: "bytes" },
+                { name: "calldata1", type: "bytes" },
+                { name: "calldata2", type: "bytes" },
+                { name: "calldata3", type: "bytes" },
+            ],
+            name: "atomicize4",
+            outputs: [],
+            payable: false,
+            stateMutability: "nonpayable",
+            type: "function",
+        },
     ];
 
     let deploy = async contracts => Promise.all(contracts.map(contract => contract.new()))
@@ -335,34 +380,29 @@ contract('WyvernExchange', (accounts) => {
                              secondDataTransferRelayerFee, secondDataTransferRoyaltyFee,
                              hasFee, hasRoyaltyFee, account_a, account_b, buyingPrice) {
         if (hasFee && hasRoyaltyFee) {
-            secondData = atomicizerc.methods.atomicize(
+            secondData = atomicizerc.methods.atomicize3(
                 [erc20.address, erc20.address, erc20.address],
                 [0, 0, 0],
-                [(secondDataTransferRemain.length - 2) / 2, (secondDataTransferRelayerFee.length - 2) / 2, (secondDataTransferRoyaltyFee.length - 2) / 2],
-                secondDataTransferRemain + secondDataTransferRelayerFee.slice("2") + secondDataTransferRoyaltyFee.slice("2")
+                secondDataTransferRemain,
+                secondDataTransferRelayerFee,
+                secondDataTransferRoyaltyFee
             ).encodeABI();
         } else if (hasFee) {
-            secondData = atomicizerc.methods.atomicize(
+            secondData = atomicizerc.methods.atomicize2(
                 [erc20.address, erc20.address],
                 [0, 0],
-                [(secondDataTransferRemain.length - 2) / 2, (secondDataTransferRelayerFee.length - 2) / 2],
-                secondDataTransferRemain + secondDataTransferRelayerFee.slice("2")
+                secondDataTransferRemain,
+                secondDataTransferRelayerFee
             ).encodeABI();
         } else if (hasRoyaltyFee) {
-            secondData = atomicizerc.methods.atomicize(
+            secondData = atomicizerc.methods.atomicize2(
                 [erc20.address, erc20.address],
                 [0, 0],
-                [(secondDataTransferRemain.length - 2) / 2, (secondDataTransferRoyaltyFee.length - 2) / 2],
-                secondDataTransferRemain + secondDataTransferRoyaltyFee.slice("2")
+                secondDataTransferRemain,
+                secondDataTransferRoyaltyFee
             ).encodeABI();
         } else {
-            secondData = erc20c.methods.transferFrom(account_b, account_a, buyingPrice).encodeABI()
-            // secondData = atomicizerc.methods.atomicize(
-            //     [erc20.address],
-            //     [0],
-            //     [(secondDataTransferRemain.length - 2) / 2],
-            //     secondDataTransferRemain
-            // ).encodeABI();
+            secondData = erc20c.methods.transferFrom(account_b, account_a, buyingPrice).encodeABI();
         }
         return secondData
     }
@@ -480,12 +520,6 @@ contract('WyvernExchange', (accounts) => {
 
         let secondData = buildSecondData(atomicizerc, erc20, erc20c, secondDataTransferRemain, secondDataTransferRelayerFee,
             secondDataTransferRoyaltyFee, hasFee, hasRoyaltyFee, account_a, account_b, remainBuyingPrice)
-        secondData1 = atomicizerc.methods.atomicize(
-            [erc20.address, erc20.address, erc20.address],
-            [0, 0, 0],
-            [(secondDataTransferRemain.length - 2) / 2, (secondDataTransferRelayerFee.length - 2) / 2, (secondDataTransferRoyaltyFee.length - 2) / 2],
-            secondDataTransferRemain + secondDataTransferRelayerFee.slice("2") + secondDataTransferRoyaltyFee.slice("2")
-        ).encodeABI();
 
         const firstCall = { target: erc721.address, howToCall: 0, data: firstData }
         let secondCall

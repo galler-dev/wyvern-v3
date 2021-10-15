@@ -31,4 +31,44 @@ library WyvernAtomicizer {
         }
     }
 
+    function atomicize2 (address[] calldata addrs, uint[] calldata values, bytes calldata calldata0, bytes calldata calldata1) external {
+        require(addrs.length == values.length && addrs.length == 2, "Addresses and values must match in quantity 2");
+
+        (bool success,) = addrs[0].call{value: values[1]}(calldata0);
+        require(success, "Atomicizer2 firstcall failed");
+
+        (success,) = addrs[1].call{value: values[1]}(calldata1);
+        require(success, "Atomicizer2 secondcall failed");
+    }
+
+    function atomicize3 (address[] calldata addrs, uint[] calldata values,
+        bytes calldata calldata0, bytes calldata calldata1, bytes calldata calldata2) external {
+        require(addrs.length == values.length && addrs.length == 3, "Addresses and values must match in quantity 3");
+
+        (bool success,) = addrs[0].call{value: values[0]}(calldata0);
+        require(success, "Atomicizer3 firstcall failed");
+
+        (success,) = addrs[1].call{value: values[1]}(calldata1);
+        require(success, "Atomicizer3 secondcall failed");
+
+        (success,) = addrs[2].call{value: values[2]}(calldata2);
+        require(success, "Atomicizer3 thirdcall failed");
+    }
+
+    function atomicize4 (address[] calldata addrs, uint[] calldata values, bytes calldata calldata0,
+        bytes calldata calldata1, bytes calldata calldata2, bytes calldata calldata3) external {
+        require(addrs.length == values.length && addrs.length == 4, "Addresses and values must match in quantity 4");
+
+        (bool success,) = addrs[0].call{value: values[0]}(calldata0);
+        require(success, "Atomicizer4 firstcall failed");
+
+        (success,) = addrs[1].call{value: values[1]}(calldata1);
+        require(success, "Atomicizer4 secondcall failed");
+
+        (success,) = addrs[2].call{value: values[2]}(calldata2);
+        require(success, "Atomicizer4 thirdcall failed");
+
+        (success,) = addrs[3].call{value: values[3]}(calldata3);
+        require(success, "Atomicizer4 forthcall failed");
+    }
 }
