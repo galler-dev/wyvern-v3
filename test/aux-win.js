@@ -186,16 +186,16 @@ const NETWORK_INFO = {
     "url": "https://data-seed-prebsc-2-s1.binance.org:8545",
     "chainId": 97,
     "contract": {
-        "wyvernAtomicizer": "0x5168Da67bdb8285495f0D8b4b6996d96DF7FC364",
-        "wyvernStatic": "0x4598cD5Bea6eF53b4E6da49609A4D064Ac5219CB",
-        "staticMarket": "0xD16AD4f1825C7aDC0410F36Bd8fA467C7Af6a9D4",
-        "testERC20": "0xfa7E64B3B7d0b3B1EA869fDCaEDaF72f6B61f0D5",
-        "testERC721": "0x2F705f2836042AEdE16e1F0F7697CF8C61Bf01Eb",
-        "testAuthenticatedProxy": "0xB2B3B624EC7F80493d6964D0E06D85F8dd6d9f28",
-        "testERC1271": "0x2dEaAc3B646cfa59DE2905030e0A21AC00ffcc12",
-        "testERC1155": "0xaBfD643F0b17C16D518143E0AD49D9863D9AB36E",
-        "wyvernRegistry": "0x234B65E25532F74E84216f3986935FbbbC012F40",
-        "wyvernExchange": "0xb685b0d79CcBbC7D413Df67d22e5B60A29c2BA17"
+        "wyvernAtomicizer": "0x7D4A37f8723Eb4bff4b4d5853CF11a0B92fe0eC3",
+        "wyvernStatic": "0x703Bd24D5F37E3cc154b81cB462754A032D344eE",
+        "staticMarket": "0xf0529072D8Ee627A018695cE42B353B239Fd561C",
+        "testERC20": "0x14127d60688234F2d7eA186d9a32Cd00b5b5979b",
+        "testERC721": "0x2E2e7cC6Da5EEE7a442d0E2D6649bc70f33FD791",
+        "testAuthenticatedProxy": "0x8D2799405Cb15C61d94eD63bc7CA29C54bc23BF4",
+        "testERC1271": "0xED2A385dE3958724fD01eA9AEcf95c871Aa47a10",
+        "testERC1155": "0xe9a1d6dd360f95346518A4Deb5e0A4C5E29066E9",
+        "wyvernRegistry": "0x737E0673B703F31dB0B9838f731F2BeA23e7C9E3",
+        "wyvernExchange": "0x569c0911fBa1A7CED5E07e2D3E903fa4C20220a3"
     }
   },
   "rinkeby": {
