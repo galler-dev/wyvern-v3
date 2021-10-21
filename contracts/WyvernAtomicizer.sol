@@ -8,6 +8,8 @@
 
 pragma solidity 0.7.5;
 
+import "./lib/ArrayUtils.sol";
+
 /**
  * @title WyvernAtomicizer
  * @author Wyvern Protocol Developers
@@ -26,6 +28,25 @@ library WyvernAtomicizer {
                 cd[k] = calldatas[j];
                 j++;
             }
+            (bool success,) = addrs[i].call{value: values[i]}(cd);
+            require(success, "Atomicizer subcall failed");
+        }
+    }
+
+    function atomicizeCustom (address[] calldata addrs, uint[] calldata values, uint[] calldata calldataLengths, bytes calldata calldatas)
+        external
+    {
+        require(addrs.length == values.length && addrs.length == calldataLengths.length, "Addresses, calldata lengths, and values must match in quantity");
+
+        uint start = 0;
+        for (uint i = 0; i < addrs.length; i++) {
+            if (i == 1) {
+                start = calldataLengths[i - 1];
+            } else if (i > 1) {
+                start = calldataLengths[i - 1] + calldataLengths[i];
+            }
+
+            bytes memory cd = ArrayUtils.arraySlice(calldatas, start, calldataLengths[i]);
             (bool success,) = addrs[i].call{value: values[i]}(cd);
             require(success, "Atomicizer subcall failed");
         }

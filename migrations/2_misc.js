@@ -3,6 +3,7 @@
 const WyvernAtomicizer = artifacts.require('./WyvernAtomicizer.sol')
 const WyvernStatic = artifacts.require('./WyvernStatic.sol')
 const StaticMarket = artifacts.require('./StaticMarket.sol')
+const StaticMarketBundle = artifacts.require('./StaticMarketBundle.sol')
 const TestERC20 = artifacts.require('./TestERC20.sol')
 const TestERC721 = artifacts.require('./TestERC721.sol')
 const TestERC1271 = artifacts.require('./TestERC1271.sol')
@@ -15,11 +16,13 @@ module.exports = async (deployer, network) => {
   await deployer.deploy(WyvernAtomicizer)
   await deployer.deploy(WyvernStatic, WyvernAtomicizer.address)
   await deployer.deploy(StaticMarket)
+  await deployer.deploy(StaticMarketBundle)
 
   if (network !== 'development'){
     setConfig('deployed.' + network + '.WyvernAtomicizer', WyvernAtomicizer.address)
     setConfig('deployed.' + network + '.WyvernStatic', WyvernStatic.address)
     setConfig('deployed.' + network + '.StaticMarket', StaticMarket.address)
+    setConfig('deployed.' + network + '.StaticMarketBundle', StaticMarketBundle.address)
   }
   console.log("2_misc, network==========================" + network)
   if (network !== 'coverage' && network !== 'development' && network !== 'rinkeby' && network !== 'bsctest')

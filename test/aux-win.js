@@ -1,5 +1,6 @@
 const Web3 = require('web3')
-const provider = new Web3.providers.HttpProvider('http://localhost:8545')
+const provider_url = 'http://localhost:8545'
+const provider = new Web3.providers.HttpProvider(provider_url)
 // const provider = new Web3.providers.HttpProvider("https://rinkeby.infura.io/v3/55e6b251278e427f92f04f1e65d5610e")
 // const provider = new Web3.providers.HttpProvider("https://data-seed-prebsc-2-s1.binance.org:8545")
 var web3 = new Web3(provider)
@@ -186,16 +187,18 @@ const NETWORK_INFO = {
     "url": "https://data-seed-prebsc-2-s1.binance.org:8545",
     "chainId": 97,
     "contract": {
-        "wyvernAtomicizer": "0x7D4A37f8723Eb4bff4b4d5853CF11a0B92fe0eC3",
-        "wyvernStatic": "0x703Bd24D5F37E3cc154b81cB462754A032D344eE",
-        "staticMarket": "0xf0529072D8Ee627A018695cE42B353B239Fd561C",
-        "testERC20": "0x14127d60688234F2d7eA186d9a32Cd00b5b5979b",
-        "testERC721": "0x2E2e7cC6Da5EEE7a442d0E2D6649bc70f33FD791",
-        "testAuthenticatedProxy": "0x8D2799405Cb15C61d94eD63bc7CA29C54bc23BF4",
-        "testERC1271": "0xED2A385dE3958724fD01eA9AEcf95c871Aa47a10",
-        "testERC1155": "0xe9a1d6dd360f95346518A4Deb5e0A4C5E29066E9",
-        "wyvernRegistry": "0x737E0673B703F31dB0B9838f731F2BeA23e7C9E3",
-        "wyvernExchange": "0x569c0911fBa1A7CED5E07e2D3E903fa4C20220a3"
+        "migrations": "0xD9d6dED6B66Bb911C73C0453F057e10823836B1D",
+        "wyvernAtomicizer": "0x10E4C18735Ad2918e7424ACA34C641584439AfEa",
+        "wyvernStatic": "0x9A3e47d8B27Ae00162Ae765749f6Ef4c352BE554",
+        "staticMarket": "0x6b7Bc34C078a2461aadF1592800b73D095008843",
+        "testERC20": "0x352791b2b709608c98628B9F4DcD289C02936c18",
+        "testERC721": "0x7Ea546526616CaCa02f92a31E80090099d10Df27",
+        "testAuthenticatedProxy": "0x562C2d1F9C023C056a84a0d001219D46890C692d",
+        "testERC1271": "0xf7E40354b202A6701F87d37d3829aB5CB0121dbb",
+        "testERC1155": "0x3f3AB8ef05E3745A8e4269fA929C114033e90FED",
+        "wyvernRegistry": "0x721773dFDE539Dd8809F191a470e5F65972F26D2",
+        "wyvernExchange": "0x7C113018b8A89d0354901E8a91838114E422E410",
+        "staticMarketBundle": "0xB36b96c2f377AdFFd4c7b8d2E2C1fcB243Ea7E49"
     }
   },
   "rinkeby": {
@@ -216,7 +219,7 @@ const NETWORK_INFO = {
     }
   },
   "development": {
-    "url": "http://localhost:8545",
+    "url": provider_url,
     "chainId": 50
   }
 }
