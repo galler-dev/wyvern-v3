@@ -1,0 +1,27 @@
+/*
+
+  << Transfer Platform Token >>
+
+*/
+
+import "./lib/ReentrancyGuarded.sol";
+
+pragma solidity 0.7.5;
+
+contract TransferPlatformToken is ReentrancyGuarded {
+    function transferETH(address[] calldata addrs, uint[] calldata amounts) external payable returns (bool) {
+        require(addrs.length == amounts.length, "transferETH: Addresses and amounts must match in quantity");
+
+        uint totalValue = 0;
+        for (uint i = 0; i < amounts.length; i++) {
+            totalValue += amounts[i];
+            address(uint160(addrs[i])).transfer(amounts[i]);
+        }
+        require(msg.value >= totalValue, "transferETH: Total amount must less than msg.value");
+
+        return true;
+    }
+
+    // important to receive ETH
+    receive() payable external {}
+}

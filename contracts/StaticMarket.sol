@@ -346,7 +346,7 @@ contract StaticMarket is StaticMarketBase {
         returns (uint)
     {
         require(uints[0] == 0,"ERC20ForERC721WithOneFee: Zero value required");
-        require(howToCalls[1] == AuthenticatedProxy.HowToCall.Call, "ERC20ForERC721WithFee: call must be a delegate call");
+        require(howToCalls[0] == AuthenticatedProxy.HowToCall.DelegateCall, "ERC20ForERC721WithFee: call must be a delegate call");
 
         (address[3] memory tokenGiveGetAndFeeRecipient, uint256[3] memory tokenIdAndPriceAndFee) = abi.decode(extra, (address[3], uint256[3]));
 
@@ -368,7 +368,7 @@ contract StaticMarket is StaticMarketBase {
         returns (uint)
     {
         require(uints[0] == 0,"ERC20ForERC721WithOneFee: Zero value required");
-        require(howToCalls[1] == AuthenticatedProxy.HowToCall.Call, "ERC20ForERC721WithFee: call must be a delegate call");
+        require(howToCalls[0] == AuthenticatedProxy.HowToCall.DelegateCall, "ERC20ForERC721WithFee: call must be a delegate call");
 
         (address[4] memory tokenGiveGetAndFeeRecipient, uint256[4] memory tokenIdAndPriceAndFee) = abi.decode(extra, (address[4], uint256[4]));
 
@@ -423,12 +423,5 @@ contract StaticMarket is StaticMarketBase {
 		pure
 	{
 		require(ArrayUtils.arrayEq(data, abi.encodeWithSignature("safeTransferFrom(address,address,uint256,uint256,bytes)", from, to, tokenId, amount, "")));
-	}
-
-	function checkERC721Side(bytes memory data, address from, address to, uint256 tokenId)
-		internal
-		pure
-	{
-		require(ArrayUtils.arrayEq(data, abi.encodeWithSignature("transferFrom(address,address,uint256)", from, to, tokenId)));
 	}
 }

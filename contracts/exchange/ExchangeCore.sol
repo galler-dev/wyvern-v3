@@ -234,7 +234,7 @@ contract ExchangeCore is ReentrancyGuarded, StaticCaller, EIP712 {
         return staticCallUint(order.staticTarget, encodeStaticCall(order, call, counterorder, countercall, matcher, value, fill));
     }
 
-    function executeCall(ProxyRegistryInterface registry, address maker, Call memory call)
+    function executeCall(ProxyRegistryInterface registry, address maker, Call memory call, bool isFirstOrder)
         internal
         returns (bool)
     {
@@ -257,7 +257,11 @@ contract ExchangeCore is ReentrancyGuarded, StaticCaller, EIP712 {
         AuthenticatedProxy proxy = AuthenticatedProxy(address(delegateProxy));
 
         /* Execute order. */
-        return proxy.proxy(call.target, call.howToCall, call.data);
+        if (isFirstOrder) {
+            return proxy.proxy(call.target, call.howToCall, call.data);
+        } else {
+            return proxy.proxy{value: msg.value}(call.target, call.howToCall, call.data);
+        }
     }
 
     function approveOrderHash(bytes32 hash)
@@ -345,16 +349,16 @@ contract ExchangeCore is ReentrancyGuarded, StaticCaller, EIP712 {
 
         /* Transfer any msg.value.
            This is the first "asymmetric" part of order matching: if an order requires Ether, it must be the first order. */
-        if (msg.value > 0) {
-            address(uint160(firstOrder.maker)).transfer(msg.value);
-        }
+        // if (msg.value > 0) {
+        //     address(uint160(firstOrder.maker)).transfer(msg.value);
+        // }
 
         /* Execute first call, assert success.
            This is the second "asymmetric" part of order matching: execution of the second order can depend on state changes in the first order, but not vice-versa. */
-        require(executeCall(ProxyRegistryInterface(firstOrder.registry), firstOrder.maker, firstCall), "First call failed");
+        require(executeCall(ProxyRegistryInterface(firstOrder.registry), firstOrder.maker, firstCall, true), "First call failed");
 
         /* Execute second call, assert success. */
-        require(executeCall(ProxyRegistryInterface(secondOrder.registry), secondOrder.maker, secondCall), "Second call failed");
+        require(executeCall(ProxyRegistryInterface(secondOrder.registry), secondOrder.maker, secondCall, false), "Second call failed");
 
         /* Static calls must happen after the effectful calls so that they can check the resulting state. */
 

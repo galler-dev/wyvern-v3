@@ -14,7 +14,7 @@
                 )
             } else {
                 params = web3.eth.abi.encodeParameters(
-                    ['address[4]', 'uint256[4]'],
+                    ['address[3]', 'uint256[4]'],
                     [addresses, tokenIdAndAmount]
                 )
             }

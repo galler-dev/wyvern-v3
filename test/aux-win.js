@@ -181,24 +181,26 @@ const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 const ZERO_BYTES32 = '0x0000000000000000000000000000000000000000000000000000000000000000'
 const NULL_SIG = {v: 27, r: ZERO_BYTES32, s: ZERO_BYTES32}
 const CHAIN_ID = 50
-const TEST_NETWORK = "development"
+const TEST_NETWORK = "bsctest"
 const NETWORK_INFO = {
   "bsctest": {
     "url": "https://data-seed-prebsc-2-s1.binance.org:8545",
     "chainId": 97,
     "contract": {
-        "migrations": "0xD9d6dED6B66Bb911C73C0453F057e10823836B1D",
-        "wyvernAtomicizer": "0x10E4C18735Ad2918e7424ACA34C641584439AfEa",
-        "wyvernStatic": "0x9A3e47d8B27Ae00162Ae765749f6Ef4c352BE554",
-        "staticMarket": "0x6b7Bc34C078a2461aadF1592800b73D095008843",
-        "testERC20": "0x352791b2b709608c98628B9F4DcD289C02936c18",
-        "testERC721": "0x7Ea546526616CaCa02f92a31E80090099d10Df27",
-        "testAuthenticatedProxy": "0x562C2d1F9C023C056a84a0d001219D46890C692d",
-        "testERC1271": "0xf7E40354b202A6701F87d37d3829aB5CB0121dbb",
-        "testERC1155": "0x3f3AB8ef05E3745A8e4269fA929C114033e90FED",
-        "wyvernRegistry": "0x721773dFDE539Dd8809F191a470e5F65972F26D2",
-        "wyvernExchange": "0x7C113018b8A89d0354901E8a91838114E422E410",
-        "staticMarketBundle": "0xB36b96c2f377AdFFd4c7b8d2E2C1fcB243Ea7E49"
+        "migrations": "0x09A825aAFa1aF58b19f8995dA4D973d6857BF42a",
+        "wyvernAtomicizer": "0x024E9606204206Be16504bc13D7387C2b1D47f2B",
+        "wyvernStatic": "0xfF9403351360420638d6deCfd998dc4d1ebF1e24",
+        "staticMarket": "0xD14d3EE2D3d66b76b1711733Ec3C06559850485E",
+        "testERC20": "0x6DA29C460cB0Ac1fdD7a6cA8b15eE2A8142045a9",
+        "testERC721": "0xd451A411c67ba299ac72F6658bC894406C706B0A",
+        "testAuthenticatedProxy": "0x518b85D73f2fc1c2AE62d22dDA080aee2D7A3907",
+        "testERC1271": "0x2027F151EC981493a50aC518E391FC8E09DA570a",
+        "testERC1155": "0xD9235a6AE54e0B9c2F79fE450d62a9130518621D",
+        "wyvernRegistry": "0x6291dD9d1bd4e7BF2b6339E9196ffc85FFd0b8fc",
+        "wyvernExchange": "0x5E8d0F88929d599Cf8A026319e8Ba352dBAcD7B8",
+        "staticMarketBundle": "0xFB982AB50Ee53Fa18268B688860640cBD7412f37",
+        "staticMarketPlatform": "0xFdAeE372b607781057504Fc70D100263797C6e4f",
+        "transferPlatformToken": "0xBd9F76A0bD557a8503032a619eE1D34253bF4b27"
     }
   },
   "rinkeby": {

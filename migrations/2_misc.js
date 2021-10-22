@@ -4,11 +4,13 @@ const WyvernAtomicizer = artifacts.require('./WyvernAtomicizer.sol')
 const WyvernStatic = artifacts.require('./WyvernStatic.sol')
 const StaticMarket = artifacts.require('./StaticMarket.sol')
 const StaticMarketBundle = artifacts.require('./StaticMarketBundle.sol')
+const StaticMarketPlatform = artifacts.require('./StaticMarketPlatform')
 const TestERC20 = artifacts.require('./TestERC20.sol')
 const TestERC721 = artifacts.require('./TestERC721.sol')
 const TestERC1271 = artifacts.require('./TestERC1271.sol')
 const TestERC1155 = artifacts.require('./TestERC1155.sol')
 const TestAuthenticatedProxy = artifacts.require('./TestAuthenticatedProxy.sol')
+const TransferPlatformToken = artifacts.require('./TransferPlatformToken')
 
 const { setConfig } = require('./config.js')
 
@@ -17,12 +19,16 @@ module.exports = async (deployer, network) => {
   await deployer.deploy(WyvernStatic, WyvernAtomicizer.address)
   await deployer.deploy(StaticMarket)
   await deployer.deploy(StaticMarketBundle)
+  await deployer.deploy(StaticMarketPlatform)
+  await deployer.deploy(TransferPlatformToken)
 
   if (network !== 'development'){
     setConfig('deployed.' + network + '.WyvernAtomicizer', WyvernAtomicizer.address)
     setConfig('deployed.' + network + '.WyvernStatic', WyvernStatic.address)
     setConfig('deployed.' + network + '.StaticMarket', StaticMarket.address)
     setConfig('deployed.' + network + '.StaticMarketBundle', StaticMarketBundle.address)
+    setConfig('deployed.' + network + '.StaticMarketPlatform', StaticMarketPlatform.address)
+    setConfig('deployed.' + network + '.TransferPlatformToken', TransferPlatformToken.address)
   }
   console.log("2_misc, network==========================" + network)
   if (network !== 'coverage' && network !== 'development' && network !== 'rinkeby' && network !== 'bsctest')

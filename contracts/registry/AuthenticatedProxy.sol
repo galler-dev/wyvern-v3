@@ -1,4 +1,4 @@
-/* 
+/*
 
   Proxy contract to hold access to assets on behalf of a user (e.g. ERC20 approve) and execute calls under particular conditions.
 
@@ -73,7 +73,7 @@ contract AuthenticatedProxy is TokenRecipient, OwnedUpgradeabilityStorage {
      * @return result Result of the call (success or failure)
      */
     function proxy(address dest, HowToCall howToCall, bytes memory data)
-        public
+        public payable
         returns (bool result)
     {
         require(msg.sender == user || (!revoked && registry.contracts(msg.sender)), "Authenticated proxy can only be called by its user, or by a contract authorized by the registry as long as the user has not revoked access");
@@ -88,7 +88,7 @@ contract AuthenticatedProxy is TokenRecipient, OwnedUpgradeabilityStorage {
 
     /**
      * Execute a message call and assert success
-     * 
+     *
      * @dev Same functionality as `proxy`, just asserts the return value
      * @param dest Address to which the call will be sent
      * @param howToCall What kind of call to make
