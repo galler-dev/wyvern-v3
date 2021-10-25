@@ -70,7 +70,7 @@
             tokenIdAndAmount.push(royaltyFee)
             if (isErc1155) {
                 params = web3.eth.abi.encodeParameters(
-                    ['address[4]', 'uint256[5]'],
+                    ['address[4]', 'uint256[]'],
                     [addresses, tokenIdAndAmount]
                 )
             } else {
@@ -123,6 +123,39 @@
         return params
     }
 
+    function buildParamsForETHAndBundle(addresses, tokenIdAndAmount, relayerFee, royaltyFee, hasFee, hasRoyaltyFee, isErc1155) {
+        if (hasFee && hasRoyaltyFee) {
+            addresses.push(relayerFeeAddress)
+            addresses.push(royaltyFeeAddress)
+            tokenIdAndAmount.push(relayerFee)
+            tokenIdAndAmount.push(royaltyFee)
+            params = web3.eth.abi.encodeParameters(
+                ['address[3]', 'uint256[]'],
+                [addresses, tokenIdAndAmount]
+            )
+        } else if (hasFee) {
+            addresses.push(relayerFeeAddress)
+            tokenIdAndAmount.push(relayerFee)
+            params = web3.eth.abi.encodeParameters(
+                ['address[2]', 'uint256[]'],
+                [addresses, tokenIdAndAmount]
+            )
+        } else if (hasRoyaltyFee) {
+            addresses.push(royaltyFeeAddress)
+            tokenIdAndAmount.push(royaltyFee)
+            params = web3.eth.abi.encodeParameters(
+                ['address[2]', 'uint256[]'],
+                [addresses, tokenIdAndAmount]
+            )
+        } else {
+            params = web3.eth.abi.encodeParameters(
+                ['address[1]', 'uint256[]'],
+                [addresses, tokenIdAndAmount]
+            )
+        }
+        return params
+    }
+
     function buildBundleData(atomicizerc, dataList, ercToken) {
         let values = []
         let addresses = []
@@ -143,6 +176,49 @@
             values,
             lengths,
             data
+        ).encodeABI()
+    }
+
+    function buildFirstDataForETHAndBundle(atomicizerc, dataList) {
+        let values = []
+        let addresses = []
+        let lengths = []
+        let data
+        for (var i = 0; i < dataList.length; i++) {
+            values.push(0)
+            lengths.push((dataList[i].length - 2) / 2)
+            if (i == 0) {
+                data = dataList[i]
+            } else {
+                data += dataList[i].slice("2")
+            }
+        }
+        return atomicizerc.methods.atomicizeCustom(
+            addresses,
+            values,
+            lengths,
+            data
+        ).encodeABI()
+    }
+
+    function buildSencodDataForETHAndBundle(atomicizerc, transferAddresses, transferAmounts, transferPlatformToken,
+                                            transferPlatformTokenc, relayerFee, royaltyFee, hasFee, hasRoyaltyFee) {
+        if (hasFee) {
+            transferAddresses.push(relayerFeeAddress)
+            transferAmounts.push(relayerFee)
+        }
+        if (hasRoyaltyFee) {
+            transferAddresses.push(royaltyFeeAddress)
+            transferAmounts.push(royaltyFee)
+        }
+        let transferETHData = transferPlatformTokenc.methods.transferETH(
+            transferAddresses,
+            transferAmounts
+        ).encodeABI()
+        return atomicizerc.methods.atomicize1(
+            transferPlatformToken.address,
+            0,
+            transferETHData
         ).encodeABI()
     }
 
@@ -190,6 +266,9 @@
         buildSecondData,
         buildBundleData,
         getEthBalance,
+        buildParamsForETHAndBundle,
+        buildSencodDataForETHAndBundle,
+        buildFirstDataForETHAndBundle,
         relayerFeeAddress,
         royaltyFeeAddress
     }

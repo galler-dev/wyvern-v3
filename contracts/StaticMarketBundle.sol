@@ -37,7 +37,7 @@ contract StaticMarketBundle is StaticMarketBase {
         require(addresses[5] == tokenGiveGet[1], "ERC721BundleForERC20: countercall target must equal address of token to get");
 
         (address[] memory tokenAddrs, bytes[] memory allBytes) = extractInfoFromData(data);
-        checkERC721Side(allBytes, tokenAddrs, tokenIdsAndPrice, tokenGiveGet[0], addresses[1], addresses[4], 1);
+        checkERC721SideForBundle(allBytes, tokenAddrs, tokenIdsAndPrice, tokenGiveGet[0], addresses[1], addresses[4], 1);
         checkERC20Side(counterdata,addresses[4],addresses[1],tokenIdsAndPrice[tokenIdsAndPrice.length - 1]);
 
         return 1;
@@ -61,7 +61,7 @@ contract StaticMarketBundle is StaticMarketBase {
         // require(addresses[5] == tokenGiveGet[1], "ERC20ForERC721Bundle: countercall target must equal address of token to get");
 
         (address[] memory tokenAddrs, bytes[] memory allBytes) = extractInfoFromData(counterdata);
-        checkERC721Side(allBytes, tokenAddrs, tokenIdsAndPrice, tokenGiveGet[1], addresses[4], addresses[1], 1);
+        checkERC721SideForBundle(allBytes, tokenAddrs, tokenIdsAndPrice, tokenGiveGet[1], addresses[4], addresses[1], 1);
         checkERC20Side(data, addresses[1], addresses[4], tokenIdsAndPrice[tokenIdsAndPrice.length - 1]);
 
         return 1;
@@ -83,7 +83,7 @@ contract StaticMarketBundle is StaticMarketBase {
         // require(addresses[5] == tokenGiveGetAndFeeRecipient[1], "ERC721BundleForERC20WithOneFee: countercall target must equal address of token to get");
 
         (address[] memory tokenAddrs, bytes[] memory allBytes) = extractInfoFromData(data);
-        checkERC721Side(allBytes, tokenAddrs, tokenIdsAndPriceAndFee, tokenGiveGetAndFeeRecipient[0], addresses[1], addresses[4], 2);
+        checkERC721SideForBundle(allBytes, tokenAddrs, tokenIdsAndPriceAndFee, tokenGiveGetAndFeeRecipient[0], addresses[1], addresses[4], 2);
         checkERC20SideWithOneFee(counterdata, addresses[4], addresses[1], tokenGiveGetAndFeeRecipient[2], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 2], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 1]);
         return 1;
     }
@@ -107,7 +107,7 @@ contract StaticMarketBundle is StaticMarketBase {
         // require(addresses[5] == tokenGiveGet[1], "ERC20ForERC721BundleWithOneFee: countercall target must equal address of token to get");
 
         (address[] memory tokenAddrs, bytes[] memory allBytes) = extractInfoFromData(counterdata);
-        checkERC721Side(allBytes, tokenAddrs, tokenIdsAndPriceAndFee, tokenGiveGetAndFeeRecipient[1], addresses[4], addresses[1], 2);
+        checkERC721SideForBundle(allBytes, tokenAddrs, tokenIdsAndPriceAndFee, tokenGiveGetAndFeeRecipient[1], addresses[4], addresses[1], 2);
         checkERC20SideWithOneFee(data, addresses[1], addresses[4], tokenGiveGetAndFeeRecipient[2], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 2], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 1]);
 
         return 1;
@@ -130,7 +130,7 @@ contract StaticMarketBundle is StaticMarketBase {
         // require(addresses[5] == tokenGiveGetAndFeeRecipient[1], "ERC721BundleForERC20WithTwoFees: countercall target must equal address of token to get");
 
         (address[] memory tokenAddrs, bytes[] memory allBytes) = extractInfoFromData(data);
-        checkERC721Side(allBytes, tokenAddrs, tokenIdsAndPriceAndFee, tokenGiveGetAndFeeRecipient[0], addresses[1], addresses[4], 3);
+        checkERC721SideForBundle(allBytes, tokenAddrs, tokenIdsAndPriceAndFee, tokenGiveGetAndFeeRecipient[0], addresses[1], addresses[4], 3);
         checkERC20SideWithTwoFees(counterdata, addresses[4], addresses[1], tokenGiveGetAndFeeRecipient[2], tokenGiveGetAndFeeRecipient[3], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 3], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 2], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 1]);
 
         return 1;
@@ -156,8 +156,147 @@ contract StaticMarketBundle is StaticMarketBase {
         // require(addresses[5] == tokenGiveGet[1], "ERC20ForERC721BundleWithTwoFees: countercall target must equal address of token to get");
 
         (address[] memory tokenAddrs, bytes[] memory allBytes) = extractInfoFromData(counterdata);
-        checkERC721Side(allBytes, tokenAddrs, tokenIdsAndPriceAndFee, tokenGiveGetAndFeeRecipient[1], addresses[4], addresses[1], 3);
+        checkERC721SideForBundle(allBytes, tokenAddrs, tokenIdsAndPriceAndFee, tokenGiveGetAndFeeRecipient[1], addresses[4], addresses[1], 3);
         checkERC20SideWithTwoFees(data, addresses[1], addresses[4], tokenGiveGetAndFeeRecipient[2], tokenGiveGetAndFeeRecipient[3], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 3], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 2], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 1]);
+
+        return 1;
+    }
+
+    function ERC721BundleForETH(bytes memory extra, address[7] memory addresses,
+        AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[6] memory uints,
+        bytes memory data, bytes memory counterdata) public pure returns (uint)
+    {
+        require(uints[0] != 0,"ERC721BundleForETH: Non zero value required");
+        require(howToCalls[0] == AuthenticatedProxy.HowToCall.DelegateCall, "ERC721BundleForETH: call must be a delegate call");
+
+        (address[1] memory tokenGive, uint256[] memory tokenIdsAndPrice) = abi.decode(extra, (address[1], uint256[]));
+
+        require(tokenIdsAndPrice[tokenIdsAndPrice.length - 1] > 0,"ERC721BundleForETH: ERC721 price must be larger than zero");
+
+
+
+        // TODO: Position 0 and 1 is the atomicizer address
+        // require(addresses[2] == tokenGive[0], "ERC721BundleForETH: call target must equal address of token to give");
+        // require(addresses[5] == tokenGive[1], "ERC721BundleForETH: countercall target must equal address of token to get");
+
+        (address[] memory tokenAddrs, bytes[] memory allBytes) = extractInfoFromData(data);
+        checkERC721SideForBundle(allBytes, tokenAddrs, tokenIdsAndPrice, tokenGive[0], addresses[1], addresses[4], 1);
+
+        return 1;
+    }
+
+    function ETHForERC721Bundle(bytes memory extra,
+        address[7] memory addresses, AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[6] memory uints,
+        bytes memory data, bytes memory counterdata)
+        public
+        pure
+        returns (uint)
+    {
+        // require(uints[0] == 0,"ETHForERC721Bundle: Zero value required");
+        require(howToCalls[0] == AuthenticatedProxy.HowToCall.DelegateCall, "ETHForERC721Bundle: call must be a delegate call");
+
+        (address[1] memory tokenGet, uint256[] memory tokenIdsAndPrice) = abi.decode(extra, (address[1], uint256[]));
+
+        require(tokenIdsAndPrice[tokenIdsAndPrice.length - 1] > 0,"ETHForERC721Bundle: ERC721 price must be larger than zero");
+
+        // TODO: Position 0 and 1 is the atomicizer address
+        // require(addresses[2] == tokenGive[0], "ETHForERC721Bundle: call target must equal address of token to give");
+        // require(addresses[5] == tokenGiveGet[1], "ETHForERC721Bundle: countercall target must equal address of token to get");
+
+        (address[] memory tokenAddrs, bytes[] memory allBytes) = extractInfoFromData(counterdata);
+        checkERC721SideForBundle(allBytes, tokenAddrs, tokenIdsAndPrice, tokenGet[0], addresses[4], addresses[1], 1);
+
+        return 1;
+    }
+
+    function ERC721BundleForETHWithOneFee(bytes memory extra, address[7] memory addresses,
+        AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[6] memory uints,
+        bytes memory data, bytes memory counterdata) public pure returns (uint)
+    {
+        require(uints[0] != 0,"ERC721BundleForETHWithOneFee: None zero value required");
+        require(howToCalls[0] == AuthenticatedProxy.HowToCall.DelegateCall, "ERC721BundleForETHWithOneFee: call must be a delegate call");
+
+        (address[2] memory tokenGiveAndFeeRecipient, uint256[] memory tokenIdsAndPriceAndFee) = abi.decode(extra, (address[2], uint256[]));
+
+        require(tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 2] > 0,"ERC721BundleForETHWithOneFee: ERC721 price must be larger than zero");
+        require(tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 1] > 0,"ERC721BundleForETHWithOneFee: Fee must be larger than zero");
+        // TODO: Position 0 and 1 in tokenGiveGetAndFeeRecipient is the atomicizer address.
+        // require(addresses[2] == tokenGiveGetAndFeeRecipient[0], "ERC721BundleForETHWithOneFee: call target must equal address of token to give");
+        // require(addresses[5] == tokenGiveGetAndFeeRecipient[1], "ERC721BundleForETHWithOneFee: countercall target must equal address of token to get");
+
+        (address[] memory tokenAddrs, bytes[] memory allBytes) = extractInfoFromData(data);
+        checkERC721SideForBundle(allBytes, tokenAddrs, tokenIdsAndPriceAndFee, tokenGiveAndFeeRecipient[0], addresses[1], addresses[4], 2);
+
+       return 1;
+    }
+
+    function ETHForERC721BundleWithOneFee(bytes memory extra,
+        address[7] memory addresses, AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[6] memory uints,
+        bytes memory data, bytes memory counterdata)
+        public
+        pure
+        returns (uint)
+    {
+        // require(uints[0] == 0,"ETHForERC721BundleWithOneFee: Zero value required");
+        require(howToCalls[0] == AuthenticatedProxy.HowToCall.DelegateCall, "ETHForERC721BundleWithOneFee: call must be a delegate call");
+
+        (address[2] memory tokenGetAndFeeRecipient, uint256[] memory tokenIdsAndPriceAndFee) = abi.decode(extra, (address[2], uint256[]));
+
+        require(tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 2] > 0,"ETHForERC721BundleWithOneFee: ERC721 price must be larger than zero");
+        require(tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 1] > 0,"ETHForERC721BundleWithOneFee: Fee must be larger than zero");
+        // TODO: Position 0 and 1 is the atomicizer address
+        // require(addresses[2] == tokenGiveGet[0], "ETHForERC721BundleWithOneFee: call target must equal address of token to give");
+        // require(addresses[5] == tokenGiveGet[1], "ETHForERC721BundleWithOneFee: countercall target must equal address of token to get");
+
+        (address[] memory tokenAddrs, bytes[] memory allBytes) = extractInfoFromData(counterdata);
+        checkERC721SideForBundle(allBytes, tokenAddrs, tokenIdsAndPriceAndFee, tokenGetAndFeeRecipient[0], addresses[4], addresses[1], 2);
+
+        return 1;
+    }
+
+    function ERC721BundleForETHWithTwoFees(bytes memory extra, address[7] memory addresses,
+        AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[6] memory uints,
+        bytes memory data, bytes memory counterdata) public pure returns (uint)
+    {
+        require(uints[0] != 0,"ERC721BundleForETHWithTwoFees: None zero value required");
+        require(howToCalls[0] == AuthenticatedProxy.HowToCall.DelegateCall, "ERC721BundleForETHWithTwoFees: call must be a delegate call");
+
+        (address[3] memory tokenGiveAndFeeRecipient, uint256[] memory tokenIdsAndPriceAndFee) = abi.decode(extra, (address[3], uint256[]));
+
+        require(tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 3] > 0,"ERC721BundleForETHWithTwoFees: ERC721 price must be larger than zero");
+        require(tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 2] > 0,"ERC721BundleForETHWithTwoFees: Fee must be larger than zero");
+        require(tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 1] > 0,"ERC721BundleForETHWithTwoFees: Royalty fee must be larger than zero");
+        // TODO: Position 0 and 1 in tokenGiveGetAndFeeRecipient is the atomicizer address.
+        // require(addresses[2] == tokenGiveGetAndFeeRecipient[0], "ERC721BundleForETHWithTwoFees: call target must equal address of token to give");
+        // require(addresses[5] == tokenGiveGetAndFeeRecipient[1], "ERC721BundleForETHWithTwoFees: countercall target must equal address of token to get");
+
+        (address[] memory tokenAddrs, bytes[] memory allBytes) = extractInfoFromData(data);
+        checkERC721SideForBundle(allBytes, tokenAddrs, tokenIdsAndPriceAndFee, tokenGiveAndFeeRecipient[0], addresses[1], addresses[4], 3);
+
+       return 1;
+    }
+
+    function ETHForERC721BundleWithTwoFees(bytes memory extra,
+        address[7] memory addresses, AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[6] memory uints,
+        bytes memory data, bytes memory counterdata)
+        public
+        pure
+        returns (uint)
+    {
+        // require(uints[0] == 0,"ETHForERC721BundleWithTwoFees: Zero value required");
+        require(howToCalls[0] == AuthenticatedProxy.HowToCall.DelegateCall, "ETHForERC721BundleWithTwoFees: call must be a delegate call");
+
+        (address[3] memory tokenGetAndFeeRecipient, uint256[] memory tokenIdsAndPriceAndFee) = abi.decode(extra, (address[3], uint256[]));
+
+        require(tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 3] > 0,"ETHForERC721BundleWithTwoFees: ERC721 price must be larger than zero");
+        require(tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 2] > 0,"ETHForERC721BundleWithTwoFees: Fee must be larger than zero");
+        require(tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 1] > 0,"ETHForERC721BundleWithTwoFees: Royalty fee must be larger than zero");
+        // TODO: Position 0 and 1 is the atomicizer address
+        // require(addresses[2] == tokenGiveGet[0], "ETHForERC721BundleWithOneFee: call target must equal address of token to give");
+        // require(addresses[5] == tokenGiveGet[1], "ETHForERC721BundleWithOneFee: countercall target must equal address of token to get");
+
+        (address[] memory tokenAddrs, bytes[] memory allBytes) = extractInfoFromData(counterdata);
+        checkERC721SideForBundle(allBytes, tokenAddrs, tokenIdsAndPriceAndFee, tokenGetAndFeeRecipient[0], addresses[4], addresses[1], 3);
 
         return 1;
     }
@@ -182,11 +321,11 @@ contract StaticMarketBundle is StaticMarketBase {
         return (addrs, allBytes);
     }
 
-    function checkERC721Side(bytes[] memory datas, address[] memory tokenAddrs, uint[] memory tokenIdsAndPrice, address tokenAddr, address from, address to, uint excludeSize) internal pure {
-        require(datas.length == tokenIdsAndPrice.length - excludeSize && datas.length == tokenAddrs.length, "checkERC721Side: Addresses, data lengths and ids must match in quantity");
+    function checkERC721SideForBundle(bytes[] memory datas, address[] memory tokenAddrs, uint[] memory tokenIdsAndPrice, address tokenAddr, address from, address to, uint excludeSize) internal pure {
+        require(datas.length == tokenIdsAndPrice.length - excludeSize && datas.length == tokenAddrs.length, "checkERC721SideForBundle: Addresses, data lengths and ids must match in quantity");
 
         for (uint i = 0; i < datas.length; i++) {
-            require(tokenAddrs[i] == tokenAddr, "checkERC721Side: Token addres must be same");
+            require(tokenAddrs[i] == tokenAddr, "checkERC721SideForBundle: Token addres must be same");
             require(ArrayUtils.arrayEq(datas[i], abi.encodeWithSignature("transferFrom(address,address,uint256)", from, to, tokenIdsAndPrice[i])));
         }
     }

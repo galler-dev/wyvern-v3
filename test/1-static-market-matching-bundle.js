@@ -13,88 +13,13 @@ const TestERC1271 = artifacts.require('TestERC1271')
 
 const Web3 = require('web3')
 
+const { atomicierAbi } = require('./test-abis')
 const { buildParamsForBundle, buildSecondData, buildBundleData, relayerFeeAddress, royaltyFeeAddress} = require('./test-utils')
 const { wrap, ZERO_ADDRESS, ZERO_BYTES32, TEST_NETWORK, NETWORK_INFO, assertIsRejected, randomUint } = require('./aux-win')
 const provider = new Web3.providers.HttpProvider(NETWORK_INFO[TEST_NETWORK].url)
 const web3 = new Web3(provider)
 
 contract('WyvernExchange', (accounts) => {
-
-    const atomicierAbi = [
-        {
-            constant: false,
-            inputs: [
-                { name: "addrs", type: "address[]" },
-                { name: "values", type: "uint256[]" },
-                { name: "calldataLengths", type: "uint256[]" },
-                { name: "calldatas", type: "bytes" },
-            ],
-            name: "atomicize",
-            outputs: [],
-            payable: false,
-            stateMutability: "nonpayable",
-            type: "function",
-        },
-        {
-            constant: false,
-            inputs: [
-                { name: "addrs", type: "address[]" },
-                { name: "values", type: "uint256[]" },
-                { name: "calldataLengths", type: "uint256[]" },
-                { name: "calldatas", type: "bytes" },
-            ],
-            name: "atomicizeCustom",
-            outputs: [],
-            payable: false,
-            stateMutability: "nonpayable",
-            type: "function",
-        },
-        {
-            constant: false,
-            inputs: [
-                { name: "addrs", type: "address[]" },
-                { name: "values", type: "uint256[]" },
-                { name: "calldata0", type: "bytes" },
-                { name: "calldata1", type: "bytes" },
-            ],
-            name: "atomicize2",
-            outputs: [],
-            payable: false,
-            stateMutability: "nonpayable",
-            type: "function",
-        },
-        {
-            constant: false,
-            inputs: [
-                { name: "addrs", type: "address[]" },
-                { name: "values", type: "uint256[]" },
-                { name: "calldata0", type: "bytes" },
-                { name: "calldata1", type: "bytes" },
-                { name: "calldata2", type: "bytes" },
-            ],
-            name: "atomicize3",
-            outputs: [],
-            payable: false,
-            stateMutability: "nonpayable",
-            type: "function",
-        },
-        {
-            constant: false,
-            inputs: [
-                { name: "addrs", type: "address[]" },
-                { name: "values", type: "uint256[]" },
-                { name: "calldata0", type: "bytes" },
-                { name: "calldata1", type: "bytes" },
-                { name: "calldata2", type: "bytes" },
-                { name: "calldata3", type: "bytes" },
-            ],
-            name: "atomicize4",
-            outputs: [],
-            payable: false,
-            stateMutability: "nonpayable",
-            type: "function",
-        },
-    ];
 
     let deploy = async contracts => Promise.all(contracts.map(contract => contract.new()))
     const CHAIN_ID = NETWORK_INFO[TEST_NETWORK].chainId
