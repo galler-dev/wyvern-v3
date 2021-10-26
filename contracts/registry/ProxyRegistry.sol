@@ -1,7 +1,7 @@
 /*
 
-  Proxy registry; keeps a mapping of AuthenticatedProxy contracts and mapping of contracts authorized to access them.  
-  
+  Proxy registry; keeps a mapping of AuthenticatedProxy contracts and mapping of contracts authorized to access them.
+
   Abstracted away from the Exchange (a) to reduce Exchange attack surface and (b) so that the Exchange contract can be upgraded without users needing to transfer assets to new proxies.
 
 */
@@ -72,7 +72,7 @@ contract ProxyRegistry is Ownable, ProxyRegistryInterface {
      *
      * @dev ProxyRegistry owner only
      * @param addr Address of which to revoke permissions
-     */    
+     */
     function revokeAuthentication (address addr)
         public
         onlyOwner
@@ -122,6 +122,26 @@ contract ProxyRegistry is Ownable, ProxyRegistryInterface {
         proxy = new OwnableDelegateProxy(user, delegateProxyImplementation, abi.encodeWithSignature("initialize(address,address)", user, address(this)));
         proxies[user] = proxy;
         return proxy;
+    }
+
+    /**
+     * Register multiple proxies contract with this registry
+     *
+     * @dev Can be called by any user
+     * @return userProxies New AuthenticatedProxy contracts
+     */
+    function registerProxyForMultiple(address[] calldata users)
+        external
+        returns (OwnableDelegateProxy[] memory)
+    {
+        OwnableDelegateProxy[] memory userProxies = new OwnableDelegateProxy[](users.length);
+        for (uint i = 0; i < users.length; i++) {
+            require(proxies[users[i]] == OwnableDelegateProxy(0), "User already has a proxy");
+            OwnableDelegateProxy proxy = new OwnableDelegateProxy(users[i], delegateProxyImplementation, abi.encodeWithSignature("initialize(address,address)", users[i], address(this)));
+            proxies[users[i]] = proxy;
+            userProxies[i] = proxy;
+        }
+        return userProxies;
     }
 
     /**
