@@ -166,14 +166,11 @@ contract StaticMarketBundle is StaticMarketBase {
         AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[6] memory uints,
         bytes memory data, bytes memory counterdata) public pure returns (uint)
     {
-        require(uints[0] != 0,"ERC721BundleForETH: Non zero value required");
         require(howToCalls[0] == AuthenticatedProxy.HowToCall.DelegateCall, "ERC721BundleForETH: call must be a delegate call");
 
         (address[1] memory tokenGive, uint256[] memory tokenIdsAndPrice) = abi.decode(extra, (address[1], uint256[]));
 
         require(tokenIdsAndPrice[tokenIdsAndPrice.length - 1] > 0,"ERC721BundleForETH: ERC721 price must be larger than zero");
-
-
 
         // TODO: Position 0 and 1 is the atomicizer address
         // require(addresses[2] == tokenGive[0], "ERC721BundleForETH: call target must equal address of token to give");
@@ -181,6 +178,8 @@ contract StaticMarketBundle is StaticMarketBase {
 
         (address[] memory tokenAddrs, bytes[] memory allBytes) = extractInfoFromData(data);
         checkERC721SideForBundle(allBytes, tokenAddrs, tokenIdsAndPrice, tokenGive[0], addresses[1], addresses[4], 1);
+
+        checkETHSide(addresses[1], uints[0], tokenIdsAndPrice[tokenIdsAndPrice.length - 1], counterdata);
 
         return 1;
     }
@@ -192,7 +191,6 @@ contract StaticMarketBundle is StaticMarketBase {
         pure
         returns (uint)
     {
-        // require(uints[0] == 0,"ETHForERC721Bundle: Zero value required");
         require(howToCalls[0] == AuthenticatedProxy.HowToCall.DelegateCall, "ETHForERC721Bundle: call must be a delegate call");
 
         (address[1] memory tokenGet, uint256[] memory tokenIdsAndPrice) = abi.decode(extra, (address[1], uint256[]));
@@ -206,6 +204,8 @@ contract StaticMarketBundle is StaticMarketBase {
         (address[] memory tokenAddrs, bytes[] memory allBytes) = extractInfoFromData(counterdata);
         checkERC721SideForBundle(allBytes, tokenAddrs, tokenIdsAndPrice, tokenGet[0], addresses[4], addresses[1], 1);
 
+        checkETHSide(addresses[4], uints[0], tokenIdsAndPrice[tokenIdsAndPrice.length - 1], data);
+
         return 1;
     }
 
@@ -213,7 +213,6 @@ contract StaticMarketBundle is StaticMarketBase {
         AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[6] memory uints,
         bytes memory data, bytes memory counterdata) public pure returns (uint)
     {
-        require(uints[0] != 0,"ERC721BundleForETHWithOneFee: None zero value required");
         require(howToCalls[0] == AuthenticatedProxy.HowToCall.DelegateCall, "ERC721BundleForETHWithOneFee: call must be a delegate call");
 
         (address[2] memory tokenGiveAndFeeRecipient, uint256[] memory tokenIdsAndPriceAndFee) = abi.decode(extra, (address[2], uint256[]));
@@ -227,6 +226,8 @@ contract StaticMarketBundle is StaticMarketBase {
         (address[] memory tokenAddrs, bytes[] memory allBytes) = extractInfoFromData(data);
         checkERC721SideForBundle(allBytes, tokenAddrs, tokenIdsAndPriceAndFee, tokenGiveAndFeeRecipient[0], addresses[1], addresses[4], 2);
 
+        checkETHSideOneFee(addresses[1], tokenGiveAndFeeRecipient[1], uints[0], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 2], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 1], counterdata);
+
        return 1;
     }
 
@@ -237,7 +238,6 @@ contract StaticMarketBundle is StaticMarketBase {
         pure
         returns (uint)
     {
-        // require(uints[0] == 0,"ETHForERC721BundleWithOneFee: Zero value required");
         require(howToCalls[0] == AuthenticatedProxy.HowToCall.DelegateCall, "ETHForERC721BundleWithOneFee: call must be a delegate call");
 
         (address[2] memory tokenGetAndFeeRecipient, uint256[] memory tokenIdsAndPriceAndFee) = abi.decode(extra, (address[2], uint256[]));
@@ -250,6 +250,8 @@ contract StaticMarketBundle is StaticMarketBase {
 
         (address[] memory tokenAddrs, bytes[] memory allBytes) = extractInfoFromData(counterdata);
         checkERC721SideForBundle(allBytes, tokenAddrs, tokenIdsAndPriceAndFee, tokenGetAndFeeRecipient[0], addresses[4], addresses[1], 2);
+
+        checkETHSideOneFee(addresses[4], tokenGetAndFeeRecipient[1], uints[0], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 2], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 1], data);
 
         return 1;
     }
@@ -273,7 +275,9 @@ contract StaticMarketBundle is StaticMarketBase {
         (address[] memory tokenAddrs, bytes[] memory allBytes) = extractInfoFromData(data);
         checkERC721SideForBundle(allBytes, tokenAddrs, tokenIdsAndPriceAndFee, tokenGiveAndFeeRecipient[0], addresses[1], addresses[4], 3);
 
-       return 1;
+        checkETHSideTwoFees(addresses[1], tokenGiveAndFeeRecipient[1], tokenGiveAndFeeRecipient[2], uints[0], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 3], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 2], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 1], counterdata);
+
+        return 1;
     }
 
     function ETHForERC721BundleWithTwoFees(bytes memory extra,
@@ -283,7 +287,6 @@ contract StaticMarketBundle is StaticMarketBase {
         pure
         returns (uint)
     {
-        // require(uints[0] == 0,"ETHForERC721BundleWithTwoFees: Zero value required");
         require(howToCalls[0] == AuthenticatedProxy.HowToCall.DelegateCall, "ETHForERC721BundleWithTwoFees: call must be a delegate call");
 
         (address[3] memory tokenGetAndFeeRecipient, uint256[] memory tokenIdsAndPriceAndFee) = abi.decode(extra, (address[3], uint256[]));
@@ -297,6 +300,8 @@ contract StaticMarketBundle is StaticMarketBase {
 
         (address[] memory tokenAddrs, bytes[] memory allBytes) = extractInfoFromData(counterdata);
         checkERC721SideForBundle(allBytes, tokenAddrs, tokenIdsAndPriceAndFee, tokenGetAndFeeRecipient[0], addresses[4], addresses[1], 3);
+
+        checkETHSideTwoFees(addresses[4], tokenGetAndFeeRecipient[1], tokenGetAndFeeRecipient[2], uints[0], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 3], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 2], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 1], data);
 
         return 1;
     }

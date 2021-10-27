@@ -16,7 +16,6 @@ contract StaticMarketPlatform is StaticMarketBase {
         AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[6] memory uints,
         bytes memory data, bytes memory counterdata) public pure returns (uint)
     {
-        require(uints[0] != 0,"ERC721ForETH: Non zero value required");
         require(howToCalls[0] == AuthenticatedProxy.HowToCall.Call, "ERC721ForETH: call must be a direct call");
 
         (address[1] memory tokenGive, uint256[2] memory tokenIdAndPrice) = abi.decode(extra, (address[1], uint256[2]));
@@ -27,6 +26,9 @@ contract StaticMarketPlatform is StaticMarketBase {
         require(uints[0] == tokenIdAndPrice[1], "ERC721ForETH: Price must be same");
 
         checkERC721Side(data,addresses[1],addresses[4],tokenIdAndPrice[0]);
+
+        checkETHSide(addresses[1], uints[0], tokenIdAndPrice[1], counterdata);
+
         return 1;
     }
 
@@ -34,8 +36,6 @@ contract StaticMarketPlatform is StaticMarketBase {
         AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[6] memory uints,
         bytes memory data, bytes memory counterdata) public pure returns (uint)
     {
-        // TODO: the first element in uints was set to 0 in ExchangeCore, how to check it?
-        // require(uints[0] == 0,"ETHForERC721: Zero value required");
         require(howToCalls[0] == AuthenticatedProxy.HowToCall.DelegateCall, "ETHForERC721: call must be a delegate call");
 
         (address[1] memory tokenGet, uint256[2] memory tokenIdAndPrice) = abi.decode(extra, (address[1], uint256[2]));
@@ -45,6 +45,8 @@ contract StaticMarketPlatform is StaticMarketBase {
 
         checkERC721Side(counterdata,addresses[4],addresses[1],tokenIdAndPrice[0]);
 
+        checkETHSide(addresses[4], uints[0], tokenIdAndPrice[1], data);
+
         return 1;
     }
 
@@ -52,7 +54,6 @@ contract StaticMarketPlatform is StaticMarketBase {
         AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[6] memory uints,
         bytes memory data, bytes memory counterdata) public pure returns (uint)
     {
-        require(uints[0] != 0,"ERC721ForETHWithOneFee: Non zero value required");
         require(howToCalls[0] == AuthenticatedProxy.HowToCall.Call, "ERC721ForETHWithOneFee: call must be a direct call");
 
         (address[2] memory tokenGiveAndFeeRecipient, uint256[3] memory tokenIdAndPriceAndFee) = abi.decode(extra, (address[2], uint256[3]));
@@ -63,6 +64,9 @@ contract StaticMarketPlatform is StaticMarketBase {
         require(uints[0] == (tokenIdAndPriceAndFee[1] + tokenIdAndPriceAndFee[2]), "ERC721ForETHWithOneFee: Price must be same");
 
         checkERC721Side(data, addresses[1], addresses[4], tokenIdAndPriceAndFee[0]);
+
+        checkETHSideOneFee(addresses[1], tokenGiveAndFeeRecipient[1], uints[0], tokenIdAndPriceAndFee[1], tokenIdAndPriceAndFee[2], counterdata);
+
         return 1;
     }
 
@@ -73,7 +77,6 @@ contract StaticMarketPlatform is StaticMarketBase {
         pure
         returns (uint)
     {
-        // require(uints[0] == 0,"ETHForERC721WithOneFee: Zero value required");
         require(howToCalls[0] == AuthenticatedProxy.HowToCall.DelegateCall, "ETHForERC721WithOneFee: call must be a delegate call");
 
         (address[2] memory tokenGetAndFeeRecipient, uint256[3] memory tokenIdAndPriceAndFee) = abi.decode(extra, (address[2], uint256[3]));
@@ -83,6 +86,8 @@ contract StaticMarketPlatform is StaticMarketBase {
 
         checkERC721Side(counterdata, addresses[4], addresses[1], tokenIdAndPriceAndFee[0]);
 
+        checkETHSideOneFee(addresses[4], tokenGetAndFeeRecipient[1], uints[0], tokenIdAndPriceAndFee[1], tokenIdAndPriceAndFee[2], data);
+
         return 1;
     }
 
@@ -90,7 +95,6 @@ contract StaticMarketPlatform is StaticMarketBase {
         AuthenticatedProxy.HowToCall[2] memory howToCalls, uint[6] memory uints,
         bytes memory data, bytes memory counterdata) public pure returns (uint)
     {
-        require(uints[0] != 0,"ERC721ForETHWithTwoFees: Non zero value required");
         require(howToCalls[0] == AuthenticatedProxy.HowToCall.Call, "ERC721ForETHWithTwoFees: call must be a direct call");
 
         (address[3] memory tokenGiveAndFeeRecipient, uint256[4] memory tokenIdAndPriceAndFee) = abi.decode(extra, (address[3], uint256[4]));
@@ -101,6 +105,9 @@ contract StaticMarketPlatform is StaticMarketBase {
         require(uints[0] == (tokenIdAndPriceAndFee[1] + tokenIdAndPriceAndFee[2] + tokenIdAndPriceAndFee[3]), "ERC721ForETHWithTwoFees: Price must be same");
 
         checkERC721Side(data, addresses[1], addresses[4], tokenIdAndPriceAndFee[0]);
+
+        checkETHSideTwoFees(addresses[1], tokenGiveAndFeeRecipient[1], tokenGiveAndFeeRecipient[2], uints[0], tokenIdAndPriceAndFee[1], tokenIdAndPriceAndFee[2], tokenIdAndPriceAndFee[3], counterdata);
+
         return 1;
     }
 
@@ -111,7 +118,6 @@ contract StaticMarketPlatform is StaticMarketBase {
         pure
         returns (uint)
     {
-        // require(uints[0] == 0,"ETHForERC721WithTwoFees: Zero value required");
         require(howToCalls[0] == AuthenticatedProxy.HowToCall.DelegateCall, "ETHForERC721WithTwoFees: call must be a delegate call");
 
         (address[3] memory tokenGetAndFeeRecipient, uint256[4] memory tokenIdAndPriceAndFee) = abi.decode(extra, (address[3], uint256[4]));
@@ -120,6 +126,8 @@ contract StaticMarketPlatform is StaticMarketBase {
         require(addresses[5] == tokenGetAndFeeRecipient[0], "ETHForERC721WithTwoFees: countercall target must equal address of token to get");
 
         checkERC721Side(counterdata, addresses[4], addresses[1], tokenIdAndPriceAndFee[0]);
+
+        checkETHSideTwoFees(addresses[4], tokenGetAndFeeRecipient[1], tokenGetAndFeeRecipient[2], uints[0], tokenIdAndPriceAndFee[1], tokenIdAndPriceAndFee[2], tokenIdAndPriceAndFee[3], data);
 
         return 1;
     }
