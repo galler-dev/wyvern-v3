@@ -34,10 +34,6 @@ contract ExchangeCore is ReentrancyGuarded, StaticCaller, EIP712 {
         address maker;
         /* Order static target. */
         address staticTarget;
-        // /* Relayer fee, maybe include royalty. */
-        // address feeRecipient;
-        // /* Royalty fee. */
-        // address royaltyFeeRecipient;
         /* Order static selector. */
         bytes4 staticSelector;
         /* Order static extradata. */
@@ -50,10 +46,6 @@ contract ExchangeCore is ReentrancyGuarded, StaticCaller, EIP712 {
         uint expirationTime;
         /* Order salt to prevent duplicate hashes. */
         uint salt;
-        // /* Relayer fee */
-        // uint relayerFee;
-        // /* Royalty fee */
-        // uint royaltyFee;
     }
 
     /* A call, convenience struct. */
