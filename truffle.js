@@ -40,7 +40,7 @@ module.exports = {
     },
     bsctest: {
       provider: function() {
-        var url = 'https://data-seed-prebsc-2-s1.binance.org:8545'
+        var url = 'https://data-seed-prebsc-1-s2.binance.org:8545'
         if (typeof rinkebyMnemonic == "object") {
           var length = rinkebyMnemonic.length
           return new HDWalletProvider(rinkebyMnemonic, url, 0, length)

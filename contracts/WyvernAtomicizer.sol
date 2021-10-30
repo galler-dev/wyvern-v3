@@ -33,6 +33,7 @@ library WyvernAtomicizer {
         }
     }
 
+    // Transfer bundle assets since the amount of assets is dynamic.
     function atomicizeCustom (address[] calldata addrs, uint[] calldata values, uint[] calldata calldataLengths, bytes calldata calldatas)
         external
     {
@@ -40,10 +41,8 @@ library WyvernAtomicizer {
 
         uint start = 0;
         for (uint i = 0; i < addrs.length; i++) {
-            if (i == 1) {
-                start = calldataLengths[i - 1];
-            } else if (i > 1) {
-                start = calldataLengths[i - 1] + calldataLengths[i];
+            if (i > 0) {
+                start += calldataLengths[i - 1];
             }
 
             bytes memory cd = ArrayUtils.arraySlice(calldatas, start, calldataLengths[i]);

@@ -27,7 +27,7 @@ contract StaticMarketPlatform is StaticMarketBase {
 
         checkERC721Side(data,addresses[1],addresses[4],tokenIdAndPrice[0]);
 
-        checkETHSide(addresses[1], uints[0], tokenIdAndPrice[1], counterdata);
+        checkETHSideWithOffset(addresses[1], uints[0], tokenIdAndPrice[1], counterdata);
 
         return 1;
     }
@@ -45,7 +45,7 @@ contract StaticMarketPlatform is StaticMarketBase {
 
         checkERC721Side(counterdata,addresses[4],addresses[1],tokenIdAndPrice[0]);
 
-        checkETHSide(addresses[4], uints[0], tokenIdAndPrice[1], data);
+        checkETHSideWithOffset(addresses[4], uints[0], tokenIdAndPrice[1], data);
 
         return 1;
     }
@@ -65,7 +65,7 @@ contract StaticMarketPlatform is StaticMarketBase {
 
         checkERC721Side(data, addresses[1], addresses[4], tokenIdAndPriceAndFee[0]);
 
-        checkETHSideOneFee(addresses[1], tokenGiveAndFeeRecipient[1], uints[0], tokenIdAndPriceAndFee[1], tokenIdAndPriceAndFee[2], counterdata);
+        checkETHSideOneFeeWithOffset(addresses[1], tokenGiveAndFeeRecipient[1], uints[0], tokenIdAndPriceAndFee[1], tokenIdAndPriceAndFee[2], counterdata);
 
         return 1;
     }
@@ -86,7 +86,7 @@ contract StaticMarketPlatform is StaticMarketBase {
 
         checkERC721Side(counterdata, addresses[4], addresses[1], tokenIdAndPriceAndFee[0]);
 
-        checkETHSideOneFee(addresses[4], tokenGetAndFeeRecipient[1], uints[0], tokenIdAndPriceAndFee[1], tokenIdAndPriceAndFee[2], data);
+        checkETHSideOneFeeWithOffset(addresses[4], tokenGetAndFeeRecipient[1], uints[0], tokenIdAndPriceAndFee[1], tokenIdAndPriceAndFee[2], data);
 
         return 1;
     }
@@ -106,7 +106,7 @@ contract StaticMarketPlatform is StaticMarketBase {
 
         checkERC721Side(data, addresses[1], addresses[4], tokenIdAndPriceAndFee[0]);
 
-        checkETHSideTwoFees(addresses[1], tokenGiveAndFeeRecipient[1], tokenGiveAndFeeRecipient[2], uints[0], tokenIdAndPriceAndFee[1], tokenIdAndPriceAndFee[2], tokenIdAndPriceAndFee[3], counterdata);
+        checkETHSideTwoFeesWithOffset(addresses[1], tokenGiveAndFeeRecipient[1], tokenGiveAndFeeRecipient[2], uints[0], tokenIdAndPriceAndFee[1], tokenIdAndPriceAndFee[2], tokenIdAndPriceAndFee[3], counterdata);
 
         return 1;
     }
@@ -127,8 +127,41 @@ contract StaticMarketPlatform is StaticMarketBase {
 
         checkERC721Side(counterdata, addresses[4], addresses[1], tokenIdAndPriceAndFee[0]);
 
-        checkETHSideTwoFees(addresses[4], tokenGetAndFeeRecipient[1], tokenGetAndFeeRecipient[2], uints[0], tokenIdAndPriceAndFee[1], tokenIdAndPriceAndFee[2], tokenIdAndPriceAndFee[3], data);
+        checkETHSideTwoFeesWithOffset(addresses[4], tokenGetAndFeeRecipient[1], tokenGetAndFeeRecipient[2], uints[0], tokenIdAndPriceAndFee[1], tokenIdAndPriceAndFee[2], tokenIdAndPriceAndFee[3], data);
 
         return 1;
+    }
+
+    function checkETHSideWithOffset(address to, uint256 value, uint price, bytes memory data) internal pure {
+        require(value >= price, "checkETHSideWithOffset: msg.value must not less than price");
+        address[] memory addrs = new address[](1);
+        addrs[0] = to;
+        uint256[] memory amounts = new uint256[](1);
+        amounts[0] = price;
+        require(ArrayUtils.arrayEq(ArrayUtils.arraySlice(data, 132, 196), abi.encodeWithSignature("transferETH(address[],uint256[])", addrs, amounts)));
+    }
+
+    function checkETHSideOneFeeWithOffset(address to, address feeRecipient, uint256 value, uint price, uint fee, bytes memory data) internal pure {
+        require(value >= price, "checkETHSideOneFeeWithOffset: msg.value must not less than price");
+        address[] memory addrs = new address[](2);
+        addrs[0] = to;
+        addrs[1] = feeRecipient;
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = price;
+        amounts[1] = fee;
+        require(ArrayUtils.arrayEq(ArrayUtils.arraySlice(data, 132, 260), abi.encodeWithSignature("transferETH(address[],uint256[])", addrs, amounts)));
+    }
+
+    function checkETHSideTwoFeesWithOffset(address to, address feeRecipient, address royaltyFeeRecipient, uint256 value, uint price, uint fee, uint royaltyFee, bytes memory data) internal pure {
+        require(value >= price, "checkETHSideTwoFeesWithOffset: msg.value must not less than price");
+        address[] memory addrs = new address[](3);
+        addrs[0] = to;
+        addrs[1] = feeRecipient;
+        addrs[2] = royaltyFeeRecipient;
+        uint256[] memory amounts = new uint256[](3);
+        amounts[0] = price;
+        amounts[1] = fee;
+        amounts[2] = royaltyFee;
+        require(ArrayUtils.arrayEq(ArrayUtils.arraySlice(data, 132, 324), abi.encodeWithSignature("transferETH(address[],uint256[])", addrs, amounts)));
     }
 }
