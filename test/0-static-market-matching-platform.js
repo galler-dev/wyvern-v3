@@ -245,4 +245,250 @@ contract('WyvernExchange', (accounts) => {
             hasRoyaltyFee: false
         })
     })
+
+    const any_erc1155_for_platform_token_test = async (options) => {
+        const { tokenId,
+            buyTokenId,
+            sellAmount,
+            sellingPrice,
+            sellingNumerator,
+            buyingPrice,
+            buyAmount,
+            buyingDenominator,
+            erc1155MintAmount,
+            account_a,
+            account_b,
+            sender,
+            transactions,
+            hasFee,
+            hasRoyaltyFee
+         } = options
+
+        const txCount = transactions || 1
+
+        let { exchange, registry, atomicizer, statici, erc1155, erc721, wyvernStatic, transferPlatformToken } = await deploy_contracts()
+
+        const atomicizerc = new web3.eth.Contract(atomicierAbi, atomicizer.address);
+        const transferPlatformTokenc = new web3.eth.Contract(transferPlatformTokenAbi, transferPlatformToken.address);
+
+        const [
+            account_a_initial_eth_balance,
+            account_b_initial_eth_balance,
+            account_b_initial_erc1155_balance,
+            relayer_initial_eth_balance,
+            royalty_initial_eth_balance,
+        ] = await Promise.all([
+            web3.eth.getBalance(account_a),
+            web3.eth.getBalance(account_b),
+            erc1155.balanceOf(account_b, tokenId),
+            web3.eth.getBalance(relayerFeeAddress),
+            web3.eth.getBalance(royaltyFeeAddress),
+        ]);
+
+        console.log("any_erc1155_for_platform_token_test account_a=" + account_a + ", account_b=" + account_b)
+        let proxy1 = await registry.proxies(account_a);
+        if (proxy1 == ZERO_ADDRESS) {
+            await registry.registerProxy({ from: account_a })
+            proxy1 = await registry.proxies(account_a)
+        }
+        assert.equal(true, proxy1.length > 0, 'no proxy address for account a')
+
+        let proxy2 = await registry.proxies(account_b)
+        if (proxy2 == ZERO_ADDRESS) {
+            await registry.registerProxy({ from: account_b })
+            proxy2 = await registry.proxies(account_b)
+        }
+        assert.equal(true, proxy2.length > 0, 'no proxy address for account b')
+
+        var isApprovedForAll = await erc1155.isApprovedForAll(account_a, proxy1)
+        console.log("any_erc1155_for_platform_token_test isApprovedForAll=" + isApprovedForAll + ", proxy1=" + proxy1)
+        if (!isApprovedForAll) {
+            erc1155.setApprovalForAll(proxy1, true, { from: account_a })
+        }
+        if (buyTokenId) {
+            await erc1155.mint(account_a, buyTokenId, erc1155MintAmount)
+        }
+        // if (isBundle) {
+        //     await erc1155.mint(account_a, anotherTokenId, erc1155MintAmount)
+        // }
+        await erc1155.mint(account_a, tokenId, erc1155MintAmount)
+
+        const erc1155c = new web3.eth.Contract(erc1155.abi, erc1155.address)
+        let selectorOne
+        if (hasFee && hasRoyaltyFee) {
+            selectorOne = web3.eth.abi.encodeFunctionSignature('ERC1155ForETHWithTwoFees(bytes,address[7],uint8[2],uint256[6],bytes,bytes)')
+            selectorTwo = web3.eth.abi.encodeFunctionSignature('ETHForERC1155WithTwoFees(bytes,address[7],uint8[2],uint256[6],bytes,bytes)')
+        } else if (hasFee || hasRoyaltyFee) {
+            selectorOne = web3.eth.abi.encodeFunctionSignature('ERC1155ForETHWithOneFee(bytes,address[7],uint8[2],uint256[6],bytes,bytes)')
+            selectorTwo = web3.eth.abi.encodeFunctionSignature('ETHForERC1155WithOneFee(bytes,address[7],uint8[2],uint256[6],bytes,bytes)')
+        } else {
+            selectorOne = web3.eth.abi.encodeFunctionSignature('ERC1155ForETH(bytes,address[7],uint8[2],uint256[6],bytes,bytes)')
+            selectorTwo = web3.eth.abi.encodeFunctionSignature('ETHForERC1155(bytes,address[7],uint8[2],uint256[6],bytes,bytes)')
+        }
+
+        let relayerFee = 2;
+        let royaltyFee = 8;
+        if (!hasFee) {
+            relayerFee = 0;
+        }
+        if (!hasRoyaltyFee) {
+            royaltyFee = 0;
+        }
+
+        const finalSellingPrice = sellingPrice - relayerFee - royaltyFee
+        let addressesOne = [erc1155.address]
+        let tokenIdAndAmountOne = [tokenId, sellingNumerator || 1, finalSellingPrice]
+        const paramsOne = buildParamsForPlatform(addressesOne, tokenIdAndAmountOne, relayerFee, royaltyFee, hasFee, hasRoyaltyFee, true)
+
+        const finalBuyingPrice = buyAmount * buyingPrice - relayerFee - royaltyFee
+        let addressesTwo = [erc1155.address]
+        let tokenIdAndAmountTwo = [buyTokenId || tokenId, finalBuyingPrice, buyingDenominator || 1]
+        const paramsTwo = buildParamsForPlatform(addressesTwo, tokenIdAndAmountTwo, relayerFee, royaltyFee, hasFee, hasRoyaltyFee, true)
+
+        const one = { registry: registry.address, maker: account_a, staticTarget: statici.address, staticSelector: selectorOne, staticExtradata: paramsOne, maximumFill: (sellingNumerator || 1) * sellAmount, listingTime: '0', expirationTime: '10000000000', salt: '11' }
+        const two = { registry: registry.address, maker: account_b, staticTarget: statici.address, staticSelector: selectorTwo, staticExtradata: paramsTwo, maximumFill: buyingPrice * buyAmount, listingTime: '0', expirationTime: '10000000000', salt: '12' }
+
+        const firstData = erc1155c.methods.safeTransferFrom(account_a, account_b, tokenId, sellingNumerator || buyAmount, "0x").encodeABI() + ZERO_BYTES32.substr(2)
+
+        let transferAddresses = [account_a]
+        let transferAmounts = [finalBuyingPrice]
+        if (hasFee) {
+            transferAddresses.push(relayerFeeAddress)
+            transferAmounts.push(relayerFee)
+        }
+        if (hasRoyaltyFee) {
+            transferAddresses.push(royaltyFeeAddress)
+            transferAmounts.push(royaltyFee)
+        }
+        let transferETHData = transferPlatformTokenc.methods.transferETH(
+            transferAddresses,
+            transferAmounts
+        ).encodeABI()
+        let secondData = atomicizerc.methods.atomicize1(
+            transferPlatformToken.address,
+            0,
+            transferETHData
+        ).encodeABI()
+
+        const firstCall = { target: erc1155.address, howToCall: 0, data: firstData }
+        let secondCall = { target: atomicizer.address, howToCall: 1, data: secondData }
+
+        let sigOne = await exchange.sign(one, account_a)
+
+        console.log("any_erc1155_for_platform_token_test one order=" + one + ", two=" + two)
+        for (var i = 0; i < txCount; ++i) {
+            let sigTwo = await exchange.sign(two, account_b)
+            await exchange.atomicMatchWith(one, sigOne, firstCall, two, sigTwo, secondCall, ZERO_BYTES32, { from: sender || account_a, value: buyingPrice })
+            two.salt++
+        }
+
+        let [account_a_eth_balance,
+            account_b_eth_balance,
+            account_b_erc1155_balance
+        ] =
+            await Promise.all([
+                web3.eth.getBalance(account_a),
+                web3.eth.getBalance(account_b),
+                erc1155.balanceOf(account_b, tokenId)
+            ])
+
+        console.log("account_a_eth_balance=" + account_a_eth_balance + ", account_b_erc1155_balance=" + account_b_erc1155_balance)
+        // assert.equal(account_a_eth_balance.toNumber(), account_a_initial_eth_balance.toNumber() + finalBuyingPrice * txCount, 'Incorrect ERC20 balance')
+        assert.equal(account_b_erc1155_balance.toNumber(), account_b_initial_erc1155_balance.toNumber() + (sellingNumerator || (buyAmount * txCount)), 'Incorrect ERC1155 balance')
+        if (hasFee) {
+            let relayer_eth_balance = await web3.eth.getBalance(relayerFeeAddress);
+            console.log("relayer_eth_balance=" + relayer_eth_balance)
+            // assert.equal(relayer_eth_balance, relayer_initial_eth_balance + relayerFee)
+        }
+        if (hasRoyaltyFee) {
+            let royalty_erc20_balance = await web3.eth.getBalance(royaltyFeeAddress);
+            console.log("royalty_erc20_balance=" + royalty_erc20_balance)
+            // assert.equal(royalty_erc20_balance.toNumber(), royalty_initial_eth_balance.toNumber() + royaltyFee)
+        }
+    }
+
+    it('StaticMarketPlatform: two fees, matches erc1155 <> platform token order, 1 fill', async () => {
+        const price = 150
+        const amount = 1
+
+        var timestamp = Date.parse(new Date());
+        return any_erc1155_for_platform_token_test({
+            tokenId: timestamp,
+            sellAmount: amount,
+            sellingPrice: price,
+            buyingPrice: price,
+            buyAmount: amount,
+            erc1155MintAmount: amount,
+            account_a: accounts[1],
+            account_b: accounts[2],
+            sender: accounts[1],
+            hasFee: true,
+            hasRoyaltyFee: true
+        })
+    })
+
+    it('StaticMarketPlatform: one fee, matches erc1155 <> platform token order, 1 fill', async () => {
+        const price = 150
+        const amount = 1
+
+        var timestamp = Date.parse(new Date());
+        return any_erc1155_for_platform_token_test({
+            tokenId: timestamp,
+            sellAmount: amount,
+            sellingPrice: price,
+            buyingPrice: price,
+            buyAmount: amount,
+            erc1155MintAmount: amount,
+            erc20MintAmount: price,
+            account_a: accounts[1],
+            account_b: accounts[2],
+            sender: accounts[1],
+            hasFee: true,
+            hasRoyaltyFee: false
+        })
+    })
+
+    it('StaticMarketPlatform: no fee, matches erc1155 <> platform token order, 1 fill', async () => {
+        const price = 150
+        const amount = 1
+
+        var timestamp = Date.parse(new Date());
+        return any_erc1155_for_platform_token_test({
+            tokenId: timestamp,
+            sellAmount: amount,
+            sellingPrice: price,
+            buyingPrice: price,
+            buyAmount: amount,
+            erc1155MintAmount: amount,
+            erc20MintAmount: price,
+            account_a: accounts[1],
+            account_b: accounts[2],
+            sender: accounts[1],
+            hasFee: false,
+            hasRoyaltyFee: false
+        })
+    })
+
+    it("StaticMarketPlatform: no fee, matches erc1155 <> erc20 order, 1 fill", async() => {
+        const price = 1000
+        const amount = 1
+
+        var timestamp = Date.parse(new Date());
+        return any_erc1155_for_platform_token_test({
+            tokenId: timestamp,
+            sellAmount: amount,
+            sellingPrice: price,
+            buyingPrice: price,
+            buyAmount: amount,
+            erc1155MintAmount: amount,
+            erc20MintAmount: price,
+            account_a: accounts[1],
+            account_b: accounts[2],
+            sender: accounts[1],
+            hasFee: true,
+            hasRoyaltyFee: true,
+            isBundle: true,
+            anotherTokenId: timestamp + 1
+        })
+    })
 })

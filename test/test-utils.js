@@ -7,58 +7,20 @@
             addresses.push(royaltyFeeAddress)
             tokenIdAndAmount.push(relayerFee)
             tokenIdAndAmount.push(royaltyFee)
-            if (isErc1155) {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[4]', 'uint256[5]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            } else {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[3]', 'uint256[4]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            }
         } else if (hasFee) {
             addresses.push(relayerFeeAddress)
             tokenIdAndAmount.push(relayerFee)
-            if (isErc1155) {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[3]', 'uint256[4]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            } else {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[2]', 'uint256[3]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            }
         } else if (hasRoyaltyFee) {
             addresses.push(royaltyFeeAddress)
             tokenIdAndAmount.push(royaltyFee)
-            if (isErc1155) {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[3]', 'uint256[4]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            } else {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[3]', 'uint256[3]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            }
-        } else {
-            if (isErc1155) {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[2]', 'uint256[3]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            } else {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[1]', 'uint256[2]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            }
         }
+
+        let typeAddrs = 'address[' + addresses.length + ']'
+        let typeUints = 'uint256[' + tokenIdAndAmount.length + ']'
+        params = web3.eth.abi.encodeParameters(
+            [typeAddrs, typeUints],
+            [addresses, tokenIdAndAmount]
+        )
         return params
     }
 

@@ -382,15 +382,6 @@ contract StaticMarket is StaticMarketBase {
         return 1;
     }
 
-	function getERC1155AmountFromCalldata(bytes memory data)
-		internal
-		pure
-		returns (uint256)
-	{
-		(uint256 amount) = abi.decode(ArrayUtils.arraySlice(data,100,32),(uint256));
-		return amount;
-	}
-
 	function getERC20AmountFromCalldata(bytes memory data)
 		internal
 		pure
@@ -417,11 +408,4 @@ contract StaticMarket is StaticMarketBase {
         (uint256 amount) = abi.decode(ArrayUtils.arraySlice(data,520,32),(uint256));
         return amount;
     }
-
-	function checkERC1155Side(bytes memory data, address from, address to, uint256 tokenId, uint256 amount)
-		internal
-		pure
-	{
-		require(ArrayUtils.arrayEq(data, abi.encodeWithSignature("safeTransferFrom(address,address,uint256,uint256,bytes)", from, to, tokenId, amount, "")));
-	}
 }
