@@ -216,7 +216,7 @@ contract('WyvernExchange', (accounts) => {
         let tokenIdAndAmountOne = [tokenId, sellingNumerator || 1, finalSellingPrice]
         const paramsOne = buildParams(addressesOne, tokenIdAndAmountOne, relayerFee, royaltyFee, hasFee, hasRoyaltyFee, true)
 
-        const finalBuyingPrice = buyAmount * buyingPrice - relayerFee - royaltyFee
+        const finalBuyingPrice = buyingPrice - relayerFee - royaltyFee
         let addressesTwo = [erc20.address, erc1155.address]
         let tokenIdAndAmountTwo = [buyTokenId || tokenId, finalBuyingPrice, buyingDenominator || 1]
         const paramsTwo = buildParams(addressesTwo, tokenIdAndAmountTwo, relayerFee, royaltyFee, hasFee, hasRoyaltyFee, true)
@@ -227,12 +227,12 @@ contract('WyvernExchange', (accounts) => {
         const firstData = erc1155c.methods.safeTransferFrom(account_a, account_b, tokenId, sellingNumerator || buyAmount, "0x").encodeABI() + ZERO_BYTES32.substr(2)
         // const secondData = erc20c.methods.transferFrom(account_b, account_a, buyAmount * buyingPrice).encodeABI()
 
-        // const remainAmountAfterFee = buyAmount * buyingPrice - relayerFee - royaltyFee
-        const secondDataTransferRemain = erc20c.methods.transferFrom(account_b, account_a, finalBuyingPrice).encodeABI()
+        const remainAmountAfterFee = buyAmount * buyingPrice - relayerFee - royaltyFee
+        const secondDataTransferRemain = erc20c.methods.transferFrom(account_b, account_a, remainAmountAfterFee).encodeABI()
         const secondDataTransferRelayerFee = erc20c.methods.transferFrom(account_b, relayerFeeAddress, relayerFee).encodeABI()
         const secondDataTransferRoyaltyFee = erc20c.methods.transferFrom(account_b, royaltyFeeAddress, royaltyFee).encodeABI()
         let secondData = buildSecondData(atomicizerc, erc20, erc20c, secondDataTransferRemain, secondDataTransferRelayerFee,
-            secondDataTransferRoyaltyFee, hasFee, hasRoyaltyFee, account_a, account_b, finalBuyingPrice)
+            secondDataTransferRoyaltyFee, hasFee, hasRoyaltyFee, account_a, account_b, remainAmountAfterFee)
 
         const firstCall = { target: erc1155.address, howToCall: 0, data: firstData }
         let secondCall
@@ -261,7 +261,7 @@ contract('WyvernExchange', (accounts) => {
                 erc1155.balanceOf(account_b, tokenId)
             ])
         console.log("9 account_a_erc20_balance=" + account_a_erc20_balance + ", account_b_erc1155_balance=" + account_b_erc1155_balance)
-        assert.equal(account_a_erc20_balance.toNumber(), account_a_initial_erc20_balance.toNumber() + finalBuyingPrice * txCount, 'Incorrect ERC20 balance')
+        assert.equal(account_a_erc20_balance.toNumber(), account_a_initial_erc20_balance.toNumber() + remainAmountAfterFee * txCount, 'Incorrect ERC20 balance')
         assert.equal(account_b_erc1155_balance.toNumber(), account_b_initial_erc1155_balance.toNumber() + (sellingNumerator || (buyAmount * txCount)), 'Incorrect ERC1155 balance')
         if (hasFee) {
             let relayer_erc20_balance = await erc20.balanceOf(relayerFeeAddress);
@@ -294,7 +294,7 @@ contract('WyvernExchange', (accounts) => {
         })
     })
 
-    it('StaticMarket: one fee, matches erc1155 <> erc20 order, 1 fill', async () => {
+    it('StaticMarket: only fee, matches erc1155 <> erc20 order, 1 fill', async () => {
         const price = 1000
         const amount = 1
 
@@ -315,6 +315,27 @@ contract('WyvernExchange', (accounts) => {
         })
     })
 
+    it('StaticMarket: only royalty fee, matches erc1155 <> erc20 order, 1 fill', async () => {
+        const price = 1000
+        const amount = 1
+
+        var timestamp = Date.parse(new Date());
+        return any_erc1155_for_erc20_with_fee_test({
+            tokenId: timestamp,
+            sellAmount: amount,
+            sellingPrice: price,
+            buyingPrice: price,
+            buyAmount: amount,
+            erc1155MintAmount: amount,
+            erc20MintAmount: price,
+            account_a: accounts[1],
+            account_b: accounts[2],
+            sender: accounts[1],
+            hasFee: false,
+            hasRoyaltyFee: true
+        })
+    })
+
     it('StaticMarket: no fee, matches erc1155 <> erc20 order, 1 fill', async () => {
         const price = 1000
         const amount = 1
@@ -328,6 +349,91 @@ contract('WyvernExchange', (accounts) => {
             buyAmount: amount,
             erc1155MintAmount: amount,
             erc20MintAmount: price,
+            account_a: accounts[1],
+            account_b: accounts[2],
+            sender: accounts[1],
+            hasFee: false,
+            hasRoyaltyFee: false
+        })
+    })
+
+
+    it('StaticMarket: two fees, matches erc1155 <> erc20 order, multiple fills', async () => {
+        const price = 1000
+        const amount = 5
+
+        var timestamp = Date.parse(new Date());
+        return any_erc1155_for_erc20_with_fee_test({
+            tokenId: timestamp,
+            sellAmount: amount,
+            sellingPrice: price,
+            buyingPrice: price,
+            buyAmount: amount,
+            erc1155MintAmount: amount,
+            erc20MintAmount: price * amount,
+            account_a: accounts[1],
+            account_b: accounts[2],
+            sender: accounts[1],
+            hasFee: true,
+            hasRoyaltyFee: true
+        })
+    })
+
+    it('StaticMarket: only fee, matches erc1155 <> erc20 order, multiple fills', async () => {
+        const price = 1000
+        const amount = 2
+
+        var timestamp = Date.parse(new Date());
+        return any_erc1155_for_erc20_with_fee_test({
+            tokenId: timestamp,
+            sellAmount: amount,
+            sellingPrice: price,
+            buyingPrice: price,
+            buyAmount: amount,
+            erc1155MintAmount: amount,
+            erc20MintAmount: price * amount,
+            account_a: accounts[1],
+            account_b: accounts[2],
+            sender: accounts[1],
+            hasFee: true,
+            hasRoyaltyFee: false
+        })
+    })
+
+    it('StaticMarket: only royalty fee, matches erc1155 <> erc20 order, multiple fills', async () => {
+        const price = 1000
+        const amount = 2
+
+        var timestamp = Date.parse(new Date());
+        return any_erc1155_for_erc20_with_fee_test({
+            tokenId: timestamp,
+            sellAmount: amount,
+            sellingPrice: price,
+            buyingPrice: price,
+            buyAmount: amount,
+            erc1155MintAmount: amount,
+            erc20MintAmount: price * amount,
+            account_a: accounts[1],
+            account_b: accounts[2],
+            sender: accounts[1],
+            hasFee: false,
+            hasRoyaltyFee: true
+        })
+    })
+
+    it('StaticMarket: no fee, matches erc1155 <> erc20 order, multiple fills', async () => {
+        const price = 1000
+        const amount = 20
+
+        var timestamp = Date.parse(new Date());
+        return any_erc1155_for_erc20_with_fee_test({
+            tokenId: timestamp,
+            sellAmount: amount,
+            sellingPrice: price,
+            buyingPrice: price,
+            buyAmount: amount,
+            erc1155MintAmount: amount,
+            erc20MintAmount: price * amount,
             account_a: accounts[1],
             account_b: accounts[2],
             sender: accounts[1],
@@ -528,8 +634,8 @@ contract('WyvernExchange', (accounts) => {
         let tokenIdAndAmountTwo = [buyTokenId || tokenId, remainBuyingPrice]
         let paramsTwo = buildParams(addressesTwo, tokenIdAndAmountTwo, relayerFee, royaltyFee, hasFee, hasRoyaltyFee, false)
 
-        const one = { registry: registry.address, maker: account_a, staticTarget: statici.address, feeRecipient: relayerFeeAddress, royaltyFeeRecipient: royaltyFeeAddress, staticSelector: selectorOne, staticExtradata: paramsOne, maximumFill: 1, listingTime: '0', expirationTime: '10000000000', salt: '11', relayerFee: relayerFee, royaltyFee: royaltyFee }
-        const two = { registry: registry.address, maker: account_b, staticTarget: statici.address, feeRecipient: relayerFeeAddress, royaltyFeeRecipient: royaltyFeeAddress, staticSelector: selectorTwo, staticExtradata: paramsTwo, maximumFill: buyingPrice, listingTime: '0', expirationTime: '10000000000', salt: '12', relayerFee: relayerFee, royaltyFee: royaltyFee }
+        const one = { registry: registry.address, maker: account_a, staticTarget: statici.address, staticSelector: selectorOne, staticExtradata: paramsOne, maximumFill: 1, listingTime: '0', expirationTime: '10000000000', salt: '11' }
+        const two = { registry: registry.address, maker: account_b, staticTarget: statici.address, staticSelector: selectorTwo, staticExtradata: paramsTwo, maximumFill: buyingPrice, listingTime: '0', expirationTime: '10000000000', salt: '12' }
 
         const firstData = erc721c.methods.transferFrom(account_a, account_b, tokenId).encodeABI()
         // const secondData = erc20c.methods.transferFrom(account_b, account_a, buyingPrice).encodeABI()
@@ -605,8 +711,8 @@ contract('WyvernExchange', (accounts) => {
             account_a: accounts[1],
             account_b: accounts[2],
             sender: accounts[1],
-            hasFee: false,
-            hasRoyaltyFee: true
+            hasFee: true,
+            hasRoyaltyFee: false
         })
     })
 

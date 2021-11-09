@@ -105,13 +105,16 @@ contract StaticMarket is StaticMarketBase {
             getERC20AmountFromCalldataWithOneFee(data)
         ];
         uint256 new_fill = 0;
+        uint256 fee = tokenIdAndNumeratorDenominatorAndFee[3];
         {
             new_fill = SafeMath.add(uints[5],call_amounts[1]);
             require(new_fill <= uints[1],"anyERC20ForERC1155WithOneFee: new fill exceeds maximum fill");
-            require(SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[1], call_amounts[0]) == SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[2], call_amounts[1]),"anyERC20ForERC1155WithOneFee: wrong ratio");
+            require(SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[1] + fee, call_amounts[0]) == SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[2], call_amounts[1] + fee),"anyERC20ForERC1155WithOneFee: wrong ratio");
         }
         checkERC1155Side(counterdata,addresses[4],addresses[1],tokenIdAndNumeratorDenominatorAndFee[0],call_amounts[0]);
-        checkERC20SideWithOneFee(data,addresses[1],addresses[4],tokenGiveGetAndFeeRecipient[2],tokenIdAndNumeratorDenominatorAndFee[1],tokenIdAndNumeratorDenominatorAndFee[3]);
+
+        uint256 amount = SafeMath.mul(call_amounts[0], tokenIdAndNumeratorDenominatorAndFee[1] + fee) - fee;
+        checkERC20SideWithOneFee(data, addresses[1], addresses[4], tokenGiveGetAndFeeRecipient[2], amount, fee);
 
         return new_fill;
     }
@@ -139,13 +142,17 @@ contract StaticMarket is StaticMarketBase {
             getERC20AmountFromCalldataWithTwoFees(data)
         ];
         uint256 new_fill = 0;
+        uint256 fee = tokenIdAndNumeratorDenominatorAndFee[3];
+        uint256 royaltyFee = tokenIdAndNumeratorDenominatorAndFee[4];
         {
             new_fill = SafeMath.add(uints[5],call_amounts[1]);
             require(new_fill <= uints[1],"anyERC20ForERC1155WithTwoFees: new fill exceeds maximum fill");
-            require(SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[1], call_amounts[0]) == SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[2], call_amounts[1]),"anyERC20ForERC1155WithTwoFees: wrong ratio");
+            require(SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[1] + fee + royaltyFee, call_amounts[0]) == SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[2], call_amounts[1] + fee + royaltyFee),"anyERC20ForERC1155WithTwoFees: wrong ratio");
         }
         checkERC1155Side(counterdata,addresses[4],addresses[1],tokenIdAndNumeratorDenominatorAndFee[0],call_amounts[0]);
-        checkERC20SideWithTwoFees(data,addresses[1],addresses[4],tokenGiveGetAndFeeRecipient[2],tokenGiveGetAndFeeRecipient[3],tokenIdAndNumeratorDenominatorAndFee[1],tokenIdAndNumeratorDenominatorAndFee[3],tokenIdAndNumeratorDenominatorAndFee[4]);
+
+        uint256 amount = SafeMath.mul(call_amounts[0], tokenIdAndNumeratorDenominatorAndFee[1] + fee + royaltyFee) - fee - royaltyFee;
+        checkERC20SideWithTwoFees(data, addresses[1], addresses[4], tokenGiveGetAndFeeRecipient[2], tokenGiveGetAndFeeRecipient[3], amount, fee, royaltyFee);
 
         return new_fill;
     }
@@ -173,14 +180,17 @@ contract StaticMarket is StaticMarketBase {
             getERC20AmountFromCalldataWithOneFee(counterdata)
         ];
         uint256 new_fill = 0;
+        uint256 fee = tokenIdAndNumeratorDenominatorAndFee[3];
         {
             new_fill = SafeMath.add(uints[5],call_amounts[0]);
             require(new_fill <= uints[1],"anyERC1155ForERC20WithOneFee: new fill exceeds maximum fill");
-            require(SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[1], call_amounts[1]) == SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[2], call_amounts[0]),"anyERC1155ForERC20WithOneFee: wrong ratio");
+            require(SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[1], call_amounts[1] + fee) == SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[2] + fee, call_amounts[0]),"anyERC1155ForERC20WithOneFee: wrong ratio");
         }
 
         checkERC1155Side(data,addresses[1],addresses[4],tokenIdAndNumeratorDenominatorAndFee[0],call_amounts[0]);
-        checkERC20SideWithOneFee(counterdata,addresses[4],addresses[1],tokenGiveGetAndFeeRecipient[2],tokenIdAndNumeratorDenominatorAndFee[2],tokenIdAndNumeratorDenominatorAndFee[3]);
+
+        uint256 amount = SafeMath.mul(call_amounts[0], tokenIdAndNumeratorDenominatorAndFee[2] + fee) - fee;
+        checkERC20SideWithOneFee(counterdata, addresses[4], addresses[1], tokenGiveGetAndFeeRecipient[2], amount, fee);
 
         return new_fill;
     }
@@ -208,14 +218,18 @@ contract StaticMarket is StaticMarketBase {
             getERC20AmountFromCalldataWithTwoFees(counterdata)
         ];
         uint256 new_fill = 0;
+        uint256 fee = tokenIdAndNumeratorDenominatorAndFee[3];
+        uint256 royaltyFee = tokenIdAndNumeratorDenominatorAndFee[4];
         {
             new_fill = SafeMath.add(uints[5],call_amounts[0]);
             require(new_fill <= uints[1],"anyERC1155ForERC20WithTwoFees: new fill exceeds maximum fill");
-            require(SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[1], call_amounts[1]) == SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[2], call_amounts[0]),"anyERC1155ForERC20WithTwoFees: wrong ratio");
+            require(SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[1], call_amounts[1] + fee + royaltyFee) == SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[2] + fee + royaltyFee, call_amounts[0]),"anyERC1155ForERC20WithTwoFees: wrong ratio");
         }
 
         checkERC1155Side(data,addresses[1],addresses[4],tokenIdAndNumeratorDenominatorAndFee[0],call_amounts[0]);
-        checkERC20SideWithTwoFees(counterdata,addresses[4],addresses[1],tokenGiveGetAndFeeRecipient[2],tokenGiveGetAndFeeRecipient[3],tokenIdAndNumeratorDenominatorAndFee[2],tokenIdAndNumeratorDenominatorAndFee[3],tokenIdAndNumeratorDenominatorAndFee[4]);
+
+        uint256 amount = SafeMath.mul(call_amounts[0], tokenIdAndNumeratorDenominatorAndFee[2] + fee + royaltyFee) - fee - royaltyFee;
+        checkERC20SideWithTwoFees(counterdata, addresses[4], addresses[1], tokenGiveGetAndFeeRecipient[2], tokenGiveGetAndFeeRecipient[3], amount, fee, royaltyFee);
 
         return new_fill;
     }
