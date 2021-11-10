@@ -1,7 +1,7 @@
     let relayerFeeAddress = "0x2c1373b2E0B26ad28c6Cc6998fE6bBB4FC816755";
     let royaltyFeeAddress = "0x66Cf70582225b4E625f60b065f86b9951a183939";
 
-    function buildParamsForPlatform(addresses, tokenIdAndAmount, relayerFee, royaltyFee, hasFee, hasRoyaltyFee, isErc1155) {
+    function buildParamsForPlatform(addresses, tokenIdAndAmount, relayerFee, royaltyFee, hasFee, hasRoyaltyFee) {
         if (hasFee && hasRoyaltyFee) {
             addresses.push(relayerFeeAddress)
             addresses.push(royaltyFeeAddress)
@@ -24,64 +24,25 @@
         return params
     }
 
-    function buildParamsForBundle(addresses, tokenIdAndAmount, relayerFee, royaltyFee, hasFee, hasRoyaltyFee, isErc1155) {
+    function buildParamsForBundle(addresses, tokenIdAndAmount, relayerFee, royaltyFee, hasFee, hasRoyaltyFee) {
         if (hasFee && hasRoyaltyFee) {
             addresses.push(relayerFeeAddress)
             addresses.push(royaltyFeeAddress)
             tokenIdAndAmount.push(relayerFee)
             tokenIdAndAmount.push(royaltyFee)
-            if (isErc1155) {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[4]', 'uint256[]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            } else {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[4]', 'uint256[]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            }
         } else if (hasFee) {
             addresses.push(relayerFeeAddress)
             tokenIdAndAmount.push(relayerFee)
-            if (isErc1155) {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[3]', 'uint256[]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            } else {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[3]', 'uint256[]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            }
         } else if (hasRoyaltyFee) {
             addresses.push(royaltyFeeAddress)
             tokenIdAndAmount.push(royaltyFee)
-            if (isErc1155) {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[3]', 'uint256[]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            } else {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[3]', 'uint256[]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            }
-        } else {
-            if (isErc1155) {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[2]', 'uint256[3]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            } else {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[2]', 'uint256[]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            }
         }
+        let typeAddrs = 'address[' + addresses.length + ']'
+        let typeIdsAndAmount = 'uint256[]'
+        params = web3.eth.abi.encodeParameters(
+            [typeAddrs, typeIdsAndAmount],
+            [addresses, tokenIdAndAmount]
+        )
         return params
     }
 

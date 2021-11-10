@@ -151,7 +151,7 @@ contract('WyvernExchange', (accounts) => {
         tokenIdsOne.push(...otherTokenIds)
         tokenIdsOne.push(remainSellingPrice)
         let tokenIdsAndAmountOne = tokenIdsOne
-        let paramsOne = buildParamsForBundle(addressesOne, tokenIdsAndAmountOne, relayerFee, royaltyFee, hasFee, hasRoyaltyFee, false)
+        let paramsOne = buildParamsForBundle(addressesOne, tokenIdsAndAmountOne, relayerFee, royaltyFee, hasFee, hasRoyaltyFee)
 
         let addressesTwo = [erc20.address, erc721.address]
         let remainBuyingPrice = buyingPrice - relayerFee - royaltyFee
@@ -159,7 +159,7 @@ contract('WyvernExchange', (accounts) => {
         tokenIdsTwo.push(...otherTokenIds)
         tokenIdsTwo.push(remainBuyingPrice)
         let tokenIdAndAmountTwo = tokenIdsTwo
-        let paramsTwo = buildParamsForBundle(addressesTwo, tokenIdAndAmountTwo, relayerFee, royaltyFee, hasFee, hasRoyaltyFee, false)
+        let paramsTwo = buildParamsForBundle(addressesTwo, tokenIdAndAmountTwo, relayerFee, royaltyFee, hasFee, hasRoyaltyFee)
 
         const one = { registry: registry.address, maker: account_a, staticTarget: statici.address, feeRecipient: relayerFeeAddress, royaltyFeeRecipient: royaltyFeeAddress, staticSelector: selectorOne, staticExtradata: paramsOne, maximumFill: 1, listingTime: '0', expirationTime: '10000000000', salt: '11', relayerFee: relayerFee, royaltyFee: royaltyFee }
         const two = { registry: registry.address, maker: account_b, staticTarget: statici.address, feeRecipient: relayerFeeAddress, royaltyFeeRecipient: royaltyFeeAddress, staticSelector: selectorTwo, staticExtradata: paramsTwo, maximumFill: buyingPrice, listingTime: '0', expirationTime: '10000000000', salt: '12', relayerFee: relayerFee, royaltyFee: royaltyFee }

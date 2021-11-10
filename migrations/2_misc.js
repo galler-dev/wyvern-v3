@@ -4,6 +4,7 @@ const WyvernAtomicizer = artifacts.require('./WyvernAtomicizer.sol')
 const WyvernStatic = artifacts.require('./WyvernStatic.sol')
 const StaticMarket = artifacts.require('./StaticMarket.sol')
 const StaticMarketBundle = artifacts.require('./StaticMarketBundle.sol')
+const StaticMarketBundleForERC1155 = artifacts.require('./StaticMarketBundleForERC1155')
 const StaticMarketPlatform = artifacts.require('./StaticMarketPlatform')
 const TestERC20 = artifacts.require('./TestERC20.sol')
 const TestERC721 = artifacts.require('./TestERC721.sol')
@@ -19,6 +20,7 @@ module.exports = async (deployer, network) => {
   await deployer.deploy(WyvernStatic, WyvernAtomicizer.address)
   await deployer.deploy(StaticMarket)
   await deployer.deploy(StaticMarketBundle)
+  await deployer.deploy(StaticMarketBundleForERC1155)
   await deployer.deploy(StaticMarketPlatform)
   await deployer.deploy(TransferPlatformToken)
 
@@ -27,6 +29,7 @@ module.exports = async (deployer, network) => {
     setConfig('deployed.' + network + '.WyvernStatic', WyvernStatic.address)
     setConfig('deployed.' + network + '.StaticMarket', StaticMarket.address)
     setConfig('deployed.' + network + '.StaticMarketBundle', StaticMarketBundle.address)
+    setConfig('deployed.' + network + '.StaticMarketBundleForERC1155', StaticMarketBundleForERC1155.address)
     setConfig('deployed.' + network + '.StaticMarketPlatform', StaticMarketPlatform.address)
     setConfig('deployed.' + network + '.TransferPlatformToken', TransferPlatformToken.address)
   }
