@@ -145,10 +145,12 @@
         ).encodeABI()
     }
 
-    function buildSecondData(atomicizerc, erc20, erc20c, secondDataTransferRemain,
-                             secondDataTransferRelayerFee, secondDataTransferRoyaltyFee,
-                             hasFee, hasRoyaltyFee, account_a, account_b, buyingPrice) {
-        if (hasFee && hasRoyaltyFee) {
+    function buildSecondData(atomicizerc, erc20, erc20c, relayerFee, royaltyFee, account_a, account_b, buyingPrice) {
+        const secondDataTransferRemain = erc20c.methods.transferFrom(account_b, account_a, buyingPrice).encodeABI()
+        const secondDataTransferRelayerFee = erc20c.methods.transferFrom(account_b, relayerFeeAddress, relayerFee).encodeABI()
+        const secondDataTransferRoyaltyFee = erc20c.methods.transferFrom(account_b, royaltyFeeAddress, royaltyFee).encodeABI()
+
+        if (relayerFee > 0 && royaltyFee > 0) {
             secondData = atomicizerc.methods.atomicize3(
                 [erc20.address, erc20.address, erc20.address],
                 [0, 0, 0],
@@ -156,14 +158,14 @@
                 secondDataTransferRelayerFee,
                 secondDataTransferRoyaltyFee
             ).encodeABI();
-        } else if (hasFee) {
+        } else if (relayerFee > 0) {
             secondData = atomicizerc.methods.atomicize2(
                 [erc20.address, erc20.address],
                 [0, 0],
                 secondDataTransferRemain,
                 secondDataTransferRelayerFee
             ).encodeABI();
-        } else if (hasRoyaltyFee) {
+        } else if (royaltyFee > 0) {
             secondData = atomicizerc.methods.atomicize2(
                 [erc20.address, erc20.address],
                 [0, 0],
@@ -171,7 +173,7 @@
                 secondDataTransferRoyaltyFee
             ).encodeABI();
         } else {
-            secondData = erc20c.methods.transferFrom(account_b, account_a, buyingPrice).encodeABI();
+            secondData = secondDataTransferRemain;
         }
         return secondData
     }

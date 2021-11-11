@@ -14,6 +14,7 @@ const Web3 = require('web3')
 // const provider = new Web3.providers.HttpProvider('http://localhost:8545')
 
 const { wrap, ZERO_ADDRESS, ZERO_BYTES32, TEST_NETWORK, NETWORK_INFO, assertIsRejected } = require('./aux-win')
+const { buildSecondData} = require('./test-utils')
 const provider = new Web3.providers.HttpProvider(NETWORK_INFO[TEST_NETWORK].url)
 const web3 = new Web3(provider)
 
@@ -228,11 +229,7 @@ contract('WyvernExchange', (accounts) => {
         // const secondData = erc20c.methods.transferFrom(account_b, account_a, buyAmount * buyingPrice).encodeABI()
 
         const remainAmountAfterFee = buyAmount * buyingPrice - relayerFee - royaltyFee
-        const secondDataTransferRemain = erc20c.methods.transferFrom(account_b, account_a, remainAmountAfterFee).encodeABI()
-        const secondDataTransferRelayerFee = erc20c.methods.transferFrom(account_b, relayerFeeAddress, relayerFee).encodeABI()
-        const secondDataTransferRoyaltyFee = erc20c.methods.transferFrom(account_b, royaltyFeeAddress, royaltyFee).encodeABI()
-        let secondData = buildSecondData(atomicizerc, erc20, erc20c, secondDataTransferRemain, secondDataTransferRelayerFee,
-            secondDataTransferRoyaltyFee, hasFee, hasRoyaltyFee, account_a, account_b, remainAmountAfterFee)
+        let secondData = buildSecondData(atomicizerc, erc20, erc20c, relayerFee, royaltyFee, account_a, account_b, remainAmountAfterFee)
 
         const firstCall = { target: erc1155.address, howToCall: 0, data: firstData }
         let secondCall
@@ -356,7 +353,6 @@ contract('WyvernExchange', (accounts) => {
             hasRoyaltyFee: false
         })
     })
-
 
     it('StaticMarket: two fees, matches erc1155 <> erc20 order, multiple fills', async () => {
         const price = 1000
@@ -503,37 +499,6 @@ contract('WyvernExchange', (accounts) => {
         return params
     }
 
-    function buildSecondData(atomicizerc, erc20, erc20c, secondDataTransferRemain,
-                             secondDataTransferRelayerFee, secondDataTransferRoyaltyFee,
-                             hasFee, hasRoyaltyFee, account_a, account_b, buyingPrice) {
-        if (hasFee && hasRoyaltyFee) {
-            secondData = atomicizerc.methods.atomicize3(
-                [erc20.address, erc20.address, erc20.address],
-                [0, 0, 0],
-                secondDataTransferRemain,
-                secondDataTransferRelayerFee,
-                secondDataTransferRoyaltyFee
-            ).encodeABI();
-        } else if (hasFee) {
-            secondData = atomicizerc.methods.atomicize2(
-                [erc20.address, erc20.address],
-                [0, 0],
-                secondDataTransferRemain,
-                secondDataTransferRelayerFee
-            ).encodeABI();
-        } else if (hasRoyaltyFee) {
-            secondData = atomicizerc.methods.atomicize2(
-                [erc20.address, erc20.address],
-                [0, 0],
-                secondDataTransferRemain,
-                secondDataTransferRoyaltyFee
-            ).encodeABI();
-        } else {
-            secondData = erc20c.methods.transferFrom(account_b, account_a, buyingPrice).encodeABI();
-        }
-        return secondData
-    }
-
     const erc721_for_erc20_test_with_fee = async (options) => {
         const {
             tokenId,
@@ -645,8 +610,7 @@ contract('WyvernExchange', (accounts) => {
         const secondDataTransferRelayerFee = erc20c.methods.transferFrom(account_b, relayerFeeAddress, relayerFee).encodeABI()
         const secondDataTransferRoyaltyFee = erc20c.methods.transferFrom(account_b, royaltyFeeAddress, royaltyFee).encodeABI()
 
-        let secondData = buildSecondData(atomicizerc, erc20, erc20c, secondDataTransferRemain, secondDataTransferRelayerFee,
-            secondDataTransferRoyaltyFee, hasFee, hasRoyaltyFee, account_a, account_b, remainBuyingPrice)
+        let secondData = buildSecondData(atomicizerc, erc20, erc20c, relayerFee, royaltyFee, account_a, account_b, remainBuyingPrice)
 
         const firstCall = { target: erc721.address, howToCall: 0, data: firstData }
         let secondCall

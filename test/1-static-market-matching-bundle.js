@@ -171,13 +171,7 @@ contract('WyvernExchange', (accounts) => {
         const firstData = buildBundleData(atomicizerc, dataList, erc721)
         // const secondData = erc20c.methods.transferFrom(account_b, account_a, buyingPrice).encodeABI()
 
-        // const remainAmountAfterFee = buyingPrice - relayerFee - royaltyFee
-        const secondDataTransferRemain = erc20c.methods.transferFrom(account_b, account_a, remainBuyingPrice).encodeABI()
-        const secondDataTransferRelayerFee = erc20c.methods.transferFrom(account_b, relayerFeeAddress, relayerFee).encodeABI()
-        const secondDataTransferRoyaltyFee = erc20c.methods.transferFrom(account_b, royaltyFeeAddress, royaltyFee).encodeABI()
-
-        let secondData = buildSecondData(atomicizerc, erc20, erc20c, secondDataTransferRemain, secondDataTransferRelayerFee,
-            secondDataTransferRoyaltyFee, hasFee, hasRoyaltyFee, account_a, account_b, remainBuyingPrice)
+        let secondData = buildSecondData(atomicizerc, erc20, erc20c, relayerFee, royaltyFee, account_a, account_b, remainBuyingPrice)
 
         const firstCall = { target: atomicizer.address, howToCall: 1, data: firstData }
 
