@@ -6,6 +6,7 @@ const StaticMarket = artifacts.require('./StaticMarket.sol')
 const StaticMarketBundle = artifacts.require('./StaticMarketBundle.sol')
 const StaticMarketBundleForERC1155 = artifacts.require('./StaticMarketBundleForERC1155')
 const StaticMarketPlatform = artifacts.require('./StaticMarketPlatform')
+const StaticMarketCollection = artifacts.require('./StaticMarketCollection')
 const TestERC20 = artifacts.require('./TestERC20.sol')
 const TestERC721 = artifacts.require('./TestERC721.sol')
 const TestERC1271 = artifacts.require('./TestERC1271.sol')
@@ -22,6 +23,7 @@ module.exports = async (deployer, network) => {
   await deployer.deploy(StaticMarketBundle)
   await deployer.deploy(StaticMarketBundleForERC1155)
   await deployer.deploy(StaticMarketPlatform)
+  await deployer.deploy(StaticMarketCollection)
   await deployer.deploy(TransferPlatformToken)
 
   if (network !== 'development'){
@@ -31,6 +33,7 @@ module.exports = async (deployer, network) => {
     setConfig('deployed.' + network + '.StaticMarketBundle', StaticMarketBundle.address)
     setConfig('deployed.' + network + '.StaticMarketBundleForERC1155', StaticMarketBundleForERC1155.address)
     setConfig('deployed.' + network + '.StaticMarketPlatform', StaticMarketPlatform.address)
+    setConfig('deployed.' + network + '.StaticMarketCollection', StaticMarketCollection.address)
     setConfig('deployed.' + network + '.TransferPlatformToken', TransferPlatformToken.address)
   }
   console.log("2_misc, network==========================" + network)

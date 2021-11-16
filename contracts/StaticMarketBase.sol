@@ -40,6 +40,14 @@ contract StaticMarketBase {
         require(ArrayUtils.arrayEq(data, abi.encodeWithSignature("transferFrom(address,address,uint256)", from, to, tokenId)));
     }
 
+    function checkERC721SideForCollection(bytes memory data, address from, address to)
+        internal
+        pure
+    {
+        (uint256 tokenId) = abi.decode(ArrayUtils.arraySlice(data, 68, 32), (uint256));
+        require(ArrayUtils.arrayEq(data, abi.encodeWithSignature("transferFrom(address,address,uint256)", from, to, tokenId)));
+    }
+
     function getERC1155AmountFromCalldata(bytes memory data)
         internal
         pure
