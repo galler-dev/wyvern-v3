@@ -12,7 +12,7 @@ const TransferPlatformToken = artifacts.require('TransferPlatformToken')
 const Web3 = require('web3')
 
 const { atomicierAbi, transferPlatformTokenAbi } = require('./test-abis')
-const { buildParamsForPlatform, buildSecondData, buildParamsForETHAndBundle, buildBundleData, buildSencodDataForETHAndBundle, relayerFeeAddress, royaltyFeeAddress} = require('./test-utils')
+const { buildParamsWithFixedSize, buildSecondData, buildParamsForETHAndBundle, buildBundleData, buildSencodDataForETHAndBundle, relayerFeeAddress, royaltyFeeAddress} = require('./test-utils')
 const { wrap, ZERO_ADDRESS, ZERO_BYTES32, TEST_NETWORK, NETWORK_INFO, assertIsRejected, randomUint } = require('./aux-win')
 const provider = new Web3.providers.HttpProvider(NETWORK_INFO[TEST_NETWORK].url)
 const web3 = new Web3(provider)
@@ -135,12 +135,12 @@ contract('WyvernExchange', (accounts) => {
         let addressesOne = [erc721.address]
         let remainSellingPrice = sellingPrice - relayerFee - royaltyFee
         let tokenIdAndAmountOne = [tokenId, remainSellingPrice]
-        let paramsOne = buildParamsForPlatform(addressesOne, tokenIdAndAmountOne, relayerFee, royaltyFee, hasFee, hasRoyaltyFee)
+        let paramsOne = buildParamsWithFixedSize(addressesOne, tokenIdAndAmountOne, relayerFee, royaltyFee, hasFee, hasRoyaltyFee)
 
         let addressesTwo = [erc721.address]
         let remainBuyingPrice = buyingPrice - relayerFee - royaltyFee
         let tokenIdAndAmountTwo = [buyTokenId || tokenId, remainBuyingPrice]
-        let paramsTwo = buildParamsForPlatform(addressesTwo, tokenIdAndAmountTwo, relayerFee, royaltyFee, hasFee, hasRoyaltyFee)
+        let paramsTwo = buildParamsWithFixedSize(addressesTwo, tokenIdAndAmountTwo, relayerFee, royaltyFee, hasFee, hasRoyaltyFee)
 
         const one = { registry: registry.address, maker: account_a, staticTarget: statici.address, feeRecipient: relayerFeeAddress, royaltyFeeRecipient: royaltyFeeAddress, staticSelector: selectorOne, staticExtradata: paramsOne, maximumFill: 1, listingTime: '0', expirationTime: '10000000000', salt: '11', relayerFee: relayerFee, royaltyFee: royaltyFee }
         const two = { registry: registry.address, maker: account_b, staticTarget: statici.address, feeRecipient: relayerFeeAddress, royaltyFeeRecipient: royaltyFeeAddress, staticSelector: selectorTwo, staticExtradata: paramsTwo, maximumFill: buyingPrice, listingTime: '0', expirationTime: '10000000000', salt: '12', relayerFee: relayerFee, royaltyFee: royaltyFee }
@@ -338,12 +338,12 @@ contract('WyvernExchange', (accounts) => {
         const finalSellingPrice = sellingPrice - relayerFee - royaltyFee
         let addressesOne = [erc1155.address]
         let tokenIdAndAmountOne = [tokenId, sellingNumerator || 1, finalSellingPrice]
-        const paramsOne = buildParamsForPlatform(addressesOne, tokenIdAndAmountOne, relayerFee, royaltyFee, hasFee, hasRoyaltyFee)
+        const paramsOne = buildParamsWithFixedSize(addressesOne, tokenIdAndAmountOne, relayerFee, royaltyFee, hasFee, hasRoyaltyFee)
 
         const finalBuyingPrice = buyAmount * buyingPrice - relayerFee - royaltyFee
         let addressesTwo = [erc1155.address]
         let tokenIdAndAmountTwo = [buyTokenId || tokenId, finalBuyingPrice, buyingDenominator || 1]
-        const paramsTwo = buildParamsForPlatform(addressesTwo, tokenIdAndAmountTwo, relayerFee, royaltyFee, hasFee, hasRoyaltyFee)
+        const paramsTwo = buildParamsWithFixedSize(addressesTwo, tokenIdAndAmountTwo, relayerFee, royaltyFee, hasFee, hasRoyaltyFee)
 
         const one = { registry: registry.address, maker: account_a, staticTarget: statici.address, staticSelector: selectorOne, staticExtradata: paramsOne, maximumFill: (sellingNumerator || 1) * sellAmount, listingTime: '0', expirationTime: '10000000000', salt: '11' }
         const two = { registry: registry.address, maker: account_b, staticTarget: statici.address, staticSelector: selectorTwo, staticExtradata: paramsTwo, maximumFill: buyingPrice * buyAmount, listingTime: '0', expirationTime: '10000000000', salt: '12' }

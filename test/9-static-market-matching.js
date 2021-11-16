@@ -14,13 +14,11 @@ const Web3 = require('web3')
 // const provider = new Web3.providers.HttpProvider('http://localhost:8545')
 
 const { wrap, ZERO_ADDRESS, ZERO_BYTES32, TEST_NETWORK, NETWORK_INFO, assertIsRejected } = require('./aux-win')
-const { buildSecondData} = require('./test-utils')
+const { buildSecondData, buildParamsWithFixedSize, relayerFeeAddress, royaltyFeeAddress } = require('./test-utils')
 const provider = new Web3.providers.HttpProvider(NETWORK_INFO[TEST_NETWORK].url)
 const web3 = new Web3(provider)
 
 contract('WyvernExchange', (accounts) => {
-    let relayerFeeAddress = "0x2c1373b2E0B26ad28c6Cc6998fE6bBB4FC816755";
-    let royaltyFeeAddress = "0x66Cf70582225b4E625f60b065f86b9951a183939";
     const atomicierAbi = [
         {
             constant: false,
@@ -215,12 +213,12 @@ contract('WyvernExchange', (accounts) => {
         const finalSellingPrice = sellingPrice - relayerFee - royaltyFee
         let addressesOne = [erc1155.address, erc20.address]
         let tokenIdAndAmountOne = [tokenId, sellingNumerator || 1, finalSellingPrice]
-        const paramsOne = buildParams(addressesOne, tokenIdAndAmountOne, relayerFee, royaltyFee, hasFee, hasRoyaltyFee, true)
+        const paramsOne = buildParamsWithFixedSize(addressesOne, tokenIdAndAmountOne, relayerFee, royaltyFee, hasFee, hasRoyaltyFee, true)
 
         const finalBuyingPrice = buyingPrice - relayerFee - royaltyFee
         let addressesTwo = [erc20.address, erc1155.address]
         let tokenIdAndAmountTwo = [buyTokenId || tokenId, finalBuyingPrice, buyingDenominator || 1]
-        const paramsTwo = buildParams(addressesTwo, tokenIdAndAmountTwo, relayerFee, royaltyFee, hasFee, hasRoyaltyFee, true)
+        const paramsTwo = buildParamsWithFixedSize(addressesTwo, tokenIdAndAmountTwo, relayerFee, royaltyFee, hasFee, hasRoyaltyFee, true)
 
         const one = { registry: registry.address, maker: account_a, staticTarget: statici.address, staticSelector: selectorOne, staticExtradata: paramsOne, maximumFill: (sellingNumerator || 1) * sellAmount, listingTime: '0', expirationTime: '10000000000', salt: '11' }
         const two = { registry: registry.address, maker: account_b, staticTarget: statici.address, staticSelector: selectorTwo, staticExtradata: paramsTwo, maximumFill: buyingPrice * buyAmount, listingTime: '0', expirationTime: '10000000000', salt: '12' }
@@ -438,67 +436,6 @@ contract('WyvernExchange', (accounts) => {
         })
     })
 
-    function buildParams(addresses, tokenIdAndAmount, relayerFee, royaltyFee, hasFee, hasRoyaltyFee, isErc1155) {
-        if (hasFee && hasRoyaltyFee) {
-            addresses.push(relayerFeeAddress)
-            addresses.push(royaltyFeeAddress)
-            tokenIdAndAmount.push(relayerFee)
-            tokenIdAndAmount.push(royaltyFee)
-            if (isErc1155) {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[4]', 'uint256[5]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            } else {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[4]', 'uint256[4]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            }
-        } else if (hasFee) {
-            addresses.push(relayerFeeAddress)
-            tokenIdAndAmount.push(relayerFee)
-            if (isErc1155) {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[3]', 'uint256[4]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            } else {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[3]', 'uint256[3]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            }
-        } else if (hasRoyaltyFee) {
-            addresses.push(royaltyFeeAddress)
-            tokenIdAndAmount.push(royaltyFee)
-            if (isErc1155) {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[3]', 'uint256[4]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            } else {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[3]', 'uint256[3]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            }
-        } else {
-            if (isErc1155) {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[2]', 'uint256[3]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            } else {
-                params = web3.eth.abi.encodeParameters(
-                    ['address[2]', 'uint256[2]'],
-                    [addresses, tokenIdAndAmount]
-                )
-            }
-        }
-        return params
-    }
-
     const erc721_for_erc20_test_with_fee = async (options) => {
         const {
             tokenId,
@@ -592,12 +529,12 @@ contract('WyvernExchange', (accounts) => {
         let addressesOne = [erc721.address, erc20.address]
         let remainSellingPrice = sellingPrice - relayerFee - royaltyFee
         let tokenIdAndAmountOne = [tokenId, remainSellingPrice]
-        let paramsOne = buildParams(addressesOne, tokenIdAndAmountOne, relayerFee, royaltyFee, hasFee, hasRoyaltyFee, false)
+        let paramsOne = buildParamsWithFixedSize(addressesOne, tokenIdAndAmountOne, relayerFee, royaltyFee, hasFee, hasRoyaltyFee, false)
 
         let addressesTwo = [erc20.address, erc721.address]
         let remainBuyingPrice = buyingPrice - relayerFee - royaltyFee
         let tokenIdAndAmountTwo = [buyTokenId || tokenId, remainBuyingPrice]
-        let paramsTwo = buildParams(addressesTwo, tokenIdAndAmountTwo, relayerFee, royaltyFee, hasFee, hasRoyaltyFee, false)
+        let paramsTwo = buildParamsWithFixedSize(addressesTwo, tokenIdAndAmountTwo, relayerFee, royaltyFee, hasFee, hasRoyaltyFee, false)
 
         const one = { registry: registry.address, maker: account_a, staticTarget: statici.address, staticSelector: selectorOne, staticExtradata: paramsOne, maximumFill: 1, listingTime: '0', expirationTime: '10000000000', salt: '11' }
         const two = { registry: registry.address, maker: account_b, staticTarget: statici.address, staticSelector: selectorTwo, staticExtradata: paramsTwo, maximumFill: buyingPrice, listingTime: '0', expirationTime: '10000000000', salt: '12' }

@@ -1,7 +1,7 @@
     let relayerFeeAddress = "0x2c1373b2E0B26ad28c6Cc6998fE6bBB4FC816755";
     let royaltyFeeAddress = "0x66Cf70582225b4E625f60b065f86b9951a183939";
 
-    function buildParamsForPlatform(addresses, tokenIdAndAmount, relayerFee, royaltyFee, hasFee, hasRoyaltyFee) {
+    function buildParamsWithFixedSize(addresses, tokenIdAndAmount, relayerFee, royaltyFee, hasFee, hasRoyaltyFee) {
         if (hasFee && hasRoyaltyFee) {
             addresses.push(relayerFeeAddress)
             addresses.push(royaltyFeeAddress)
@@ -186,7 +186,7 @@
     }
 
     module.exports = {
-        buildParamsForPlatform,
+        buildParamsWithFixedSize,
         buildParamsForBundle,
         buildSecondData,
         buildBundleData,
