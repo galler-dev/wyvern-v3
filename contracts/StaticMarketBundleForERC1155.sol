@@ -56,7 +56,7 @@ contract StaticMarketBundleForERC1155 is StaticMarketBase {
 
         checkETHSideWithOffset(addresses[4], uints[0], tokenIdsAndAmountsAndPrice[tokenIdsAndAmountsAndPrice.length - 1], data);
 
-        return 1;
+        return tokenIdsAndAmountsAndPrice[tokenIdsAndAmountsAndPrice.length - 1];
     }
 
     function ERC1155BundleForETHWithOneFee(bytes memory extra, address[7] memory addresses,
@@ -91,7 +91,7 @@ contract StaticMarketBundleForERC1155 is StaticMarketBase {
         checkERC1155SideForBundle(allBytes, tokenAddrs, tokenIdsAndAmountsAndPrice, tokenGetAndFeeRecipient[0], addresses[4], addresses[1], 2);
 
         checkETHSideOneFeeWithOffset(addresses[4], tokenGetAndFeeRecipient[1], uints[0], tokenIdsAndAmountsAndPrice[tokenIdsAndAmountsAndPrice.length - 2], tokenIdsAndAmountsAndPrice[tokenIdsAndAmountsAndPrice.length - 1], data);
-        return 1;
+        return tokenIdsAndAmountsAndPrice[tokenIdsAndAmountsAndPrice.length - 2] + tokenIdsAndAmountsAndPrice[tokenIdsAndAmountsAndPrice.length - 1];
     }
 
     function ERC1155BundleForETHWithTwoFees(bytes memory extra, address[7] memory addresses,
@@ -126,7 +126,7 @@ contract StaticMarketBundleForERC1155 is StaticMarketBase {
         checkERC1155SideForBundle(allBytes, tokenAddrs, tokenIdsAndAmountsAndPrice, tokenGetAndFeeRecipient[0], addresses[4], addresses[1], 2);
 
         checkETHSideTwoFeesWithOffset(addresses[4], tokenGetAndFeeRecipient[1], tokenGetAndFeeRecipient[2], uints[0], tokenIdsAndAmountsAndPrice[tokenIdsAndAmountsAndPrice.length - 3], tokenIdsAndAmountsAndPrice[tokenIdsAndAmountsAndPrice.length - 2], tokenIdsAndAmountsAndPrice[tokenIdsAndAmountsAndPrice.length - 1], data);
-        return 1;
+        return tokenIdsAndAmountsAndPrice[tokenIdsAndAmountsAndPrice.length - 3] + tokenIdsAndAmountsAndPrice[tokenIdsAndAmountsAndPrice.length - 2] + tokenIdsAndAmountsAndPrice[tokenIdsAndAmountsAndPrice.length - 1];
     }
 
     function ERC1155BundleForERC20(bytes memory extra, address[7] memory addresses,
@@ -167,7 +167,7 @@ contract StaticMarketBundleForERC1155 is StaticMarketBase {
         checkERC1155SideForBundle(allBytes, tokenAddrs, tokenIdsAndAmountsAndPrice, tokenGiveGet[1], addresses[4], addresses[1], 1);
 
         checkERC20Side(data, addresses[1], addresses[4], tokenIdsAndAmountsAndPrice[tokenIdsAndAmountsAndPrice.length - 1]);
-        return 1;
+        return tokenIdsAndAmountsAndPrice[tokenIdsAndAmountsAndPrice.length - 1];
     }
 
     function ERC1155BundleForERC20WithOneFee(bytes memory extra, address[7] memory addresses,
@@ -207,7 +207,7 @@ contract StaticMarketBundleForERC1155 is StaticMarketBase {
         checkERC1155SideForBundle(allBytes, tokenAddrs, tokenIdsAmountsPriceAndFee, tokenGiveGetAndFeeRecipient[1], addresses[4], addresses[1], 2);
 
         checkERC20SideWithOneFee(data, addresses[1], addresses[4], tokenGiveGetAndFeeRecipient[2], tokenIdsAmountsPriceAndFee[tokenIdsAmountsPriceAndFee.length - 2], tokenIdsAmountsPriceAndFee[tokenIdsAmountsPriceAndFee.length - 1]);
-        return 1;
+        return tokenIdsAmountsPriceAndFee[tokenIdsAmountsPriceAndFee.length - 2] + tokenIdsAmountsPriceAndFee[tokenIdsAmountsPriceAndFee.length - 1];
     }
 
     function ERC1155BundleForERC20WithTwoFees(bytes memory extra, address[7] memory addresses,
@@ -247,7 +247,7 @@ contract StaticMarketBundleForERC1155 is StaticMarketBase {
         checkERC1155SideForBundle(allBytes, tokenAddrs, tokenIdsAmountsPriceAndFee, tokenGiveGetAndFeeRecipient[1], addresses[4], addresses[1], 3);
 
         checkERC20SideWithTwoFees(data, addresses[1], addresses[4], tokenGiveGetAndFeeRecipient[2], tokenGiveGetAndFeeRecipient[3], tokenIdsAmountsPriceAndFee[tokenIdsAmountsPriceAndFee.length - 3], tokenIdsAmountsPriceAndFee[tokenIdsAmountsPriceAndFee.length - 2], tokenIdsAmountsPriceAndFee[tokenIdsAmountsPriceAndFee.length - 1]);
-        return 1;
+        return tokenIdsAmountsPriceAndFee[tokenIdsAmountsPriceAndFee.length - 3] + tokenIdsAmountsPriceAndFee[tokenIdsAmountsPriceAndFee.length - 2] + tokenIdsAmountsPriceAndFee[tokenIdsAmountsPriceAndFee.length - 1];
     }
 
     function checkERC1155SideForBundle(bytes[] memory datas, address[] memory tokenAddrs, uint[] memory tokenIdsAndAmounts, address tokenAddr, address from, address to, uint excludeLength) internal pure {

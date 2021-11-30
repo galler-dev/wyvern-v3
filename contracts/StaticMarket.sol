@@ -116,7 +116,7 @@ contract StaticMarket is StaticMarketBase {
         uint256 amount = SafeMath.mul(call_amounts[0], tokenIdAndNumeratorDenominatorAndFee[1] + fee) - fee;
         checkERC20SideWithOneFee(data, addresses[1], addresses[4], tokenGiveGetAndFeeRecipient[2], amount, fee);
 
-        return new_fill;
+        return new_fill + fee;
     }
 
     function anyERC20ForERC1155WithTwoFees(bytes memory extra,
@@ -154,7 +154,7 @@ contract StaticMarket is StaticMarketBase {
         uint256 amount = SafeMath.mul(call_amounts[0], tokenIdAndNumeratorDenominatorAndFee[1] + fee + royaltyFee) - fee - royaltyFee;
         checkERC20SideWithTwoFees(data, addresses[1], addresses[4], tokenGiveGetAndFeeRecipient[2], tokenGiveGetAndFeeRecipient[3], amount, fee, royaltyFee);
 
-        return new_fill;
+        return new_fill + fee + royaltyFee;
     }
 
     function anyERC1155ForERC20WithOneFee(bytes memory extra,
@@ -305,7 +305,7 @@ contract StaticMarket is StaticMarketBase {
 		checkERC721Side(counterdata,addresses[4],addresses[1],tokenIdAndPrice[0]);
 		checkERC20Side(data,addresses[1],addresses[4],tokenIdAndPrice[1]);
 
-		return 1;
+		return tokenIdAndPrice[1];
 	}
 
     function ERC721ForERC20WithOneFee(bytes memory extra,
@@ -371,7 +371,7 @@ contract StaticMarket is StaticMarketBase {
         checkERC721Side(counterdata,addresses[4],addresses[1],tokenIdAndPriceAndFee[0]);
         checkERC20SideWithOneFee(data,addresses[1],addresses[4],tokenGiveGetAndFeeRecipient[2],tokenIdAndPriceAndFee[1],tokenIdAndPriceAndFee[2]);
 
-        return 1;
+        return tokenIdAndPriceAndFee[1] + tokenIdAndPriceAndFee[2];
     }
 
     function ERC20ForERC721WithTwoFees(bytes memory extra,
@@ -393,7 +393,7 @@ contract StaticMarket is StaticMarketBase {
         checkERC721Side(counterdata,addresses[4],addresses[1],tokenIdAndPriceAndFee[0]);
         checkERC20SideWithTwoFees(data,addresses[1],addresses[4],tokenGiveGetAndFeeRecipient[2],tokenGiveGetAndFeeRecipient[3],tokenIdAndPriceAndFee[1],tokenIdAndPriceAndFee[2],tokenIdAndPriceAndFee[3]);
 
-        return 1;
+        return tokenIdAndPriceAndFee[1] + tokenIdAndPriceAndFee[2] + tokenIdAndPriceAndFee[3];
     }
 
 	function getERC20AmountFromCalldata(bytes memory data)

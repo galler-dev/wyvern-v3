@@ -47,7 +47,7 @@ contract StaticMarketPlatform is StaticMarketBase {
 
         checkETHSideWithOffset(addresses[4], uints[0], tokenIdAndPrice[1], data);
 
-        return 1;
+        return tokenIdAndPrice[tokenIdAndPrice.length - 1];
     }
 
     function ERC721ForETHWithOneFee(bytes memory extra, address[7] memory addresses,
@@ -88,7 +88,7 @@ contract StaticMarketPlatform is StaticMarketBase {
 
         checkETHSideOneFeeWithOffset(addresses[4], tokenGetAndFeeRecipient[1], uints[0], tokenIdAndPriceAndFee[1], tokenIdAndPriceAndFee[2], data);
 
-        return 1;
+        return tokenIdAndPriceAndFee[tokenIdAndPriceAndFee.length - 2] + tokenIdAndPriceAndFee[tokenIdAndPriceAndFee.length - 1];
     }
 
     function ERC721ForETHWithTwoFees(bytes memory extra, address[7] memory addresses,
@@ -129,7 +129,7 @@ contract StaticMarketPlatform is StaticMarketBase {
 
         checkETHSideTwoFeesWithOffset(addresses[4], tokenGetAndFeeRecipient[1], tokenGetAndFeeRecipient[2], uints[0], tokenIdAndPriceAndFee[1], tokenIdAndPriceAndFee[2], tokenIdAndPriceAndFee[3], data);
 
-        return 1;
+        return tokenIdAndPriceAndFee[tokenIdAndPriceAndFee.length - 3] + tokenIdAndPriceAndFee[tokenIdAndPriceAndFee.length - 2] + tokenIdAndPriceAndFee[tokenIdAndPriceAndFee.length - 1];
     }
 
     function ETHForAnyERC721(bytes memory extra, address[7] memory addresses,
@@ -147,7 +147,7 @@ contract StaticMarketPlatform is StaticMarketBase {
 
         checkETHSideWithOffset(addresses[4], uints[0], price[0], data);
 
-        return 1;
+        return price[0];
     }
 
     function ETHForAnyERC721WithOneFee(bytes memory extra,
@@ -168,7 +168,7 @@ contract StaticMarketPlatform is StaticMarketBase {
 
         checkETHSideOneFeeWithOffset(addresses[4], tokenGetAndFeeRecipient[1], uints[0], priceAndFee[0], priceAndFee[1], data);
 
-        return 1;
+        return priceAndFee[priceAndFee.length - 2] + priceAndFee[priceAndFee.length - 1];
     }
 
     function ETHForAnyERC721WithTwoFees(bytes memory extra,
@@ -189,7 +189,7 @@ contract StaticMarketPlatform is StaticMarketBase {
 
         checkETHSideTwoFeesWithOffset(addresses[4], tokenGetAndFeeRecipient[1], tokenGetAndFeeRecipient[2], uints[0], priceAndFee[0], priceAndFee[1], priceAndFee[2], data);
 
-        return 1;
+        return priceAndFee[priceAndFee.length - 3] + priceAndFee[priceAndFee.length - 2] + priceAndFee[priceAndFee.length - 1];
     }
 
     function ERC1155ForETH(bytes memory extra, address[7] memory addresses,
@@ -241,7 +241,7 @@ contract StaticMarketPlatform is StaticMarketBase {
 
         checkETHSideWithOffset(addresses[4], uints[0], tokenIdAndNumeratorDenominator[1], data);
 
-        return 1;
+        return new_fill;
     }
 
     function ERC1155ForETHWithOneFee(bytes memory extra, address[7] memory addresses,
@@ -295,7 +295,7 @@ contract StaticMarketPlatform is StaticMarketBase {
 
         checkETHSideOneFeeWithOffset(addresses[4], tokenGetAndFeeRecipient[1], uints[0], tokenIdAndNumeratorDenominatorAndFee[1], tokenIdAndNumeratorDenominatorAndFee[3], data);
 
-        return 1;
+        return new_fill;
     }
 
     function ERC1155ForETHWithTwoFees(bytes memory extra, address[7] memory addresses,
@@ -351,6 +351,6 @@ contract StaticMarketPlatform is StaticMarketBase {
 
         checkETHSideTwoFeesWithOffset(addresses[4], tokenGetAndFeeRecipient[1], tokenGetAndFeeRecipient[2], uints[0], tokenIdAndNumeratorDenominatorAndFee[1], tokenIdAndNumeratorDenominatorAndFee[3], tokenIdAndNumeratorDenominatorAndFee[4], data);
 
-        return 1;
+        return new_fill;
     }
 }

@@ -64,7 +64,7 @@ contract StaticMarketBundle is StaticMarketBase {
         checkERC721SideForBundle(allBytes, tokenAddrs, tokenIdsAndPrice, tokenGiveGet[1], addresses[4], addresses[1], 1);
         checkERC20Side(data, addresses[1], addresses[4], tokenIdsAndPrice[tokenIdsAndPrice.length - 1]);
 
-        return 1;
+        return tokenIdsAndPrice[tokenIdsAndPrice.length - 1];
     }
 
     function ERC721BundleForERC20WithOneFee(bytes memory extra, address[7] memory addresses,
@@ -110,7 +110,7 @@ contract StaticMarketBundle is StaticMarketBase {
         checkERC721SideForBundle(allBytes, tokenAddrs, tokenIdsAndPriceAndFee, tokenGiveGetAndFeeRecipient[1], addresses[4], addresses[1], 2);
         checkERC20SideWithOneFee(data, addresses[1], addresses[4], tokenGiveGetAndFeeRecipient[2], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 2], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 1]);
 
-        return 1;
+        return tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 2] + tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 1];
     }
 
     function ERC721BundleForERC20WithTwoFees(bytes memory extra, address[7] memory addresses,
@@ -159,7 +159,7 @@ contract StaticMarketBundle is StaticMarketBase {
         checkERC721SideForBundle(allBytes, tokenAddrs, tokenIdsAndPriceAndFee, tokenGiveGetAndFeeRecipient[1], addresses[4], addresses[1], 3);
         checkERC20SideWithTwoFees(data, addresses[1], addresses[4], tokenGiveGetAndFeeRecipient[2], tokenGiveGetAndFeeRecipient[3], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 3], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 2], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 1]);
 
-        return 1;
+        return tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 3] + tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 2] + tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 1];
     }
 
     function ERC721BundleForETH(bytes memory extra, address[7] memory addresses,
@@ -206,7 +206,7 @@ contract StaticMarketBundle is StaticMarketBase {
 
         checkETHSide(addresses[4], uints[0], tokenIdsAndPrice[tokenIdsAndPrice.length - 1], data);
 
-        return 1;
+        return tokenIdsAndPrice[tokenIdsAndPrice.length - 1];
     }
 
     function ERC721BundleForETHWithOneFee(bytes memory extra, address[7] memory addresses,
@@ -253,7 +253,7 @@ contract StaticMarketBundle is StaticMarketBase {
 
         checkETHSideOneFee(addresses[4], tokenGetAndFeeRecipient[1], uints[0], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 2], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 1], data);
 
-        return 1;
+        return tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 2] + tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 1];
     }
 
     function ERC721BundleForETHWithTwoFees(bytes memory extra, address[7] memory addresses,
@@ -303,7 +303,7 @@ contract StaticMarketBundle is StaticMarketBase {
 
         checkETHSideTwoFees(addresses[4], tokenGetAndFeeRecipient[1], tokenGetAndFeeRecipient[2], uints[0], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 3], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 2], tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 1], data);
 
-        return 1;
+        return tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 3] + tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 2] + tokenIdsAndPriceAndFee[tokenIdsAndPriceAndFee.length - 1];
     }
 
     function checkERC721SideForBundle(bytes[] memory datas, address[] memory tokenAddrs, uint[] memory tokenIdsAndPrice, address tokenAddr, address from, address to, uint excludeSize) internal pure {

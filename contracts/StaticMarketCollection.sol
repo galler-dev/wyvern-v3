@@ -41,7 +41,7 @@ contract StaticMarketCollection is StaticMarketBase {
         checkERC721SideForCollection(counterdata, addresses[4], addresses[1]);
         checkERC20Side(data, addresses[1], addresses[4], price[0]);
 
-        return 1;
+        return price[0];
     }
 
     function ERC20ForAnyERC721WithOneFee(bytes memory extra,
@@ -63,7 +63,7 @@ contract StaticMarketCollection is StaticMarketBase {
         checkERC721SideForCollection(counterdata, addresses[4], addresses[1]);
         checkERC20SideWithOneFee(data, addresses[1], addresses[4], tokenGiveGetAndFeeRecipient[2], priceAndFee[0], priceAndFee[1]);
 
-        return 1;
+        return priceAndFee[priceAndFee.length - 2] + priceAndFee[priceAndFee.length - 1];
     }
 
     function ERC20ForAnyERC721WithTwoFees(bytes memory extra,
@@ -85,6 +85,6 @@ contract StaticMarketCollection is StaticMarketBase {
         checkERC721SideForCollection(counterdata, addresses[4], addresses[1]);
         checkERC20SideWithTwoFees(data, addresses[1], addresses[4], tokenGiveGetAndFeeRecipient[2], tokenGiveGetAndFeeRecipient[3], priceAndFee[0], priceAndFee[1], priceAndFee[2]);
 
-        return 1;
+        return priceAndFee[priceAndFee.length - 3] + priceAndFee[priceAndFee.length - 2] + priceAndFee[priceAndFee.length - 1];
     }
 }
