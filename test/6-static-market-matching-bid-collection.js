@@ -92,9 +92,9 @@ contract('WyvernExchange', (accounts) => {
         let exchange, statici, registry, atomicizer, erc20, erc1155, erc721, staticiCollection
         if (TEST_NETWORK == "development") {
             [registry, atomicizer] = await Promise.all([WyvernRegistry.new(), WyvernAtomicizer.new()]);
-            [exchange, statici] = await Promise.all([WyvernExchange.new(CHAIN_ID, [registry.address], '0x'), StaticMarket.new()]);
+            [exchange, statici] = await Promise.all([WyvernExchange.new(CHAIN_ID, [registry.address], '0x'), StaticMarket.new(atomicizer.address)]);
             [erc20, erc1155, erc721] = await deploy([TestERC20, TestERC1155, TestERC721]);
-            [staticiCollection] = await Promise.all([StaticMarketCollection.new()]);
+            [staticiCollection] = await Promise.all([StaticMarketCollection.new(atomicizer.address)]);
         } else {
             [exchange, statici, registry, atomicizer, erc20, erc1155, erc721, staticiCollection] = [
                 new WyvernExchange(contractInfo.wyvernExchange),

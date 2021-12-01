@@ -19,11 +19,11 @@ const { setConfig } = require('./config.js')
 module.exports = async (deployer, network) => {
   await deployer.deploy(WyvernAtomicizer)
   await deployer.deploy(WyvernStatic, WyvernAtomicizer.address)
-  await deployer.deploy(StaticMarket)
-  await deployer.deploy(StaticMarketBundle)
-  await deployer.deploy(StaticMarketBundleForERC1155)
-  await deployer.deploy(StaticMarketPlatform)
-  await deployer.deploy(StaticMarketCollection)
+  await deployer.deploy(StaticMarket, WyvernAtomicizer.address)
+  await deployer.deploy(StaticMarketBundle, WyvernAtomicizer.address)
+  await deployer.deploy(StaticMarketBundleForERC1155, WyvernAtomicizer.address)
+  await deployer.deploy(StaticMarketPlatform, WyvernAtomicizer.address)
+  await deployer.deploy(StaticMarketCollection, WyvernAtomicizer.address)
   await deployer.deploy(TransferPlatformToken)
 
   if (network !== 'development'){
