@@ -10,7 +10,7 @@ pragma solidity 0.7.5;
 
 contract StaticCheckETH {
     function checkETHSideWithOffset(address to, uint256 value, uint price, bytes memory data) internal pure {
-        require(value >= price, "checkETHSideWithOffset: msg.value must not less than price");
+        require(value > 0 && value == price, "checkETHSideWithOffset: Price must be same and greater than 0");
         address[] memory addrs = new address[](1);
         addrs[0] = to;
         uint256[] memory amounts = new uint256[](1);
@@ -19,7 +19,7 @@ contract StaticCheckETH {
     }
 
     function checkETHSideOneFeeWithOffset(address to, address feeRecipient, uint256 value, uint price, uint fee, bytes memory data) internal pure {
-        require(value >= price + fee, "checkETHSideOneFeeWithOffset: msg.value must not less than price");
+        require(value > 0 && value == price + fee, "checkETHSideOneFeeWithOffset: Price must be same and greater than 0");
         address[] memory addrs = new address[](2);
         addrs[0] = to;
         addrs[1] = feeRecipient;
@@ -30,7 +30,7 @@ contract StaticCheckETH {
     }
 
     function checkETHSideTwoFeesWithOffset(address to, address feeRecipient, address royaltyFeeRecipient, uint256 value, uint price, uint fee, uint royaltyFee, bytes memory data) internal pure {
-        require(value >= price + fee + royaltyFee, "checkETHSideTwoFeesWithOffset: msg.value must not less than price");
+        require(value > 0 && value == price + fee + royaltyFee, "checkETHSideTwoFeesWithOffset: Price must be same and greater than 0");
         address[] memory addrs = new address[](3);
         addrs[0] = to;
         addrs[1] = feeRecipient;

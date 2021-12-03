@@ -33,8 +33,6 @@ contract StaticMarketPlatform is StaticCheckERC20, StaticCheckERC721, StaticChec
         require(addresses[2] == tokenGive[0], "call target must equal address of token to give");
         require(addresses[5] == atomicizer, "countercall target must equal address of atomicizer");
 
-        require(uints[0] == tokenIdAndPrice[1], "Price must be same");
-
         checkERC721Side(data,addresses[1],addresses[4],tokenIdAndPrice[0]);
 
         checkETHSideWithOffset(addresses[1], uints[0], tokenIdAndPrice[1], counterdata);
@@ -72,8 +70,6 @@ contract StaticMarketPlatform is StaticCheckERC20, StaticCheckERC721, StaticChec
         require(tokenIdAndPriceAndFee[1] > 0,"ERC721 price must be larger than zero");
         require(addresses[2] == tokenGiveAndFeeRecipient[0], "call target must equal address of token to give");
         require(addresses[5] == atomicizer, "countercall target must equal address of atomicizer");
-
-        require(uints[0] == (tokenIdAndPriceAndFee[1] + tokenIdAndPriceAndFee[2]), "Price must be same");
 
         checkERC721Side(data, addresses[1], addresses[4], tokenIdAndPriceAndFee[0]);
 
@@ -115,8 +111,6 @@ contract StaticMarketPlatform is StaticCheckERC20, StaticCheckERC721, StaticChec
         require(tokenIdAndPriceAndFee[1] > 0,"ERC721 price must be larger than zero");
         require(addresses[2] == tokenGiveAndFeeRecipient[0], "call target must equal address of token to give");
         require(addresses[5] == atomicizer, "countercall target must equal address of atomicizer");
-
-        require(uints[0] == (tokenIdAndPriceAndFee[1] + tokenIdAndPriceAndFee[2] + tokenIdAndPriceAndFee[3]), "Price must be same");
 
         checkERC721Side(data, addresses[1], addresses[4], tokenIdAndPriceAndFee[0]);
 
@@ -224,8 +218,6 @@ contract StaticMarketPlatform is StaticCheckERC20, StaticCheckERC721, StaticChec
         require(addresses[2] == tokenGive[0], "call target must equal address of token to give");
         require(addresses[5] == atomicizer, "countercall target must equal address of atomicizer");
 
-        require(uints[0] == tokenIdAndNumeratorDenominator[2], "Price must be same");
-
         uint256 erc1155Amount = getERC1155AmountFromCalldata(data);
         uint256 new_fill = SafeMath.add(uints[5], erc1155Amount);
         require(new_fill <= uints[1],"new fill exceeds maximum fill");
@@ -277,8 +269,6 @@ contract StaticMarketPlatform is StaticCheckERC20, StaticCheckERC721, StaticChec
 
         require(addresses[2] == tokenGiveAndFeeRecipient[0], "call target must equal address of token to give");
         require(addresses[5] == atomicizer, "countercall target must equal address of atomicizer");
-
-        require(uints[0] == (tokenIdAndNumeratorDenominatorAndFee[2] + tokenIdAndNumeratorDenominatorAndFee[3]), "Price must be same");
 
         uint256 erc1155Amount = getERC1155AmountFromCalldata(data);
         uint256 new_fill = SafeMath.add(uints[5], erc1155Amount);
@@ -332,12 +322,10 @@ contract StaticMarketPlatform is StaticCheckERC20, StaticCheckERC721, StaticChec
         require(addresses[2] == tokenGiveAndFeeRecipient[0], "call target must equal address of token to give");
         require(addresses[5] == atomicizer, "countercall target must equal address of atomicizer");
 
-        uint256 totalAmount = tokenIdAndNumeratorDenominatorAndFee[2] + tokenIdAndNumeratorDenominatorAndFee[3] + tokenIdAndNumeratorDenominatorAndFee[4];
-        require(uints[0] == totalAmount, "Price must be same");
-
         uint256 erc1155Amount = getERC1155AmountFromCalldata(data);
         uint256 new_fill = SafeMath.add(uints[5], erc1155Amount);
         require(new_fill <= uints[1],"new fill exceeds maximum fill");
+        uint256 totalAmount = tokenIdAndNumeratorDenominatorAndFee[2] + tokenIdAndNumeratorDenominatorAndFee[3] + tokenIdAndNumeratorDenominatorAndFee[4];
         require(SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[1], uints[0]) == SafeMath.mul(totalAmount, erc1155Amount), "wrong ratio");
 
         checkERC1155Side(data, addresses[1], addresses[4], tokenIdAndNumeratorDenominatorAndFee[0], erc1155Amount);
