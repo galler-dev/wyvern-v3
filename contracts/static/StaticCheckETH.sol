@@ -3,7 +3,7 @@
   << Static Check ETH contract >>
 
 */
-
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "../lib/ArrayUtils.sol";
 
 pragma solidity 0.7.5;
@@ -19,7 +19,7 @@ contract StaticCheckETH {
     }
 
     function checkETHSideOneFeeWithOffset(address to, address feeRecipient, uint256 value, uint price, uint fee, bytes memory data) internal pure {
-        require(value > 0 && value == price + fee, "checkETHSideOneFeeWithOffset: Price must be same and greater than 0");
+        require(value > 0 && value == SafeMath.add(price, fee), "checkETHSideOneFeeWithOffset: Price must be same and greater than 0");
         address[] memory addrs = new address[](2);
         addrs[0] = to;
         addrs[1] = feeRecipient;
@@ -30,7 +30,7 @@ contract StaticCheckETH {
     }
 
     function checkETHSideTwoFeesWithOffset(address to, address feeRecipient, address royaltyFeeRecipient, uint256 value, uint price, uint fee, uint royaltyFee, bytes memory data) internal pure {
-        require(value > 0 && value == price + fee + royaltyFee, "checkETHSideTwoFeesWithOffset: Price must be same and greater than 0");
+        require(value > 0 && value == SafeMath.add(SafeMath.add(price, fee), royaltyFee), "checkETHSideTwoFeesWithOffset: Price must be same and greater than 0");
         address[] memory addrs = new address[](3);
         addrs[0] = to;
         addrs[1] = feeRecipient;

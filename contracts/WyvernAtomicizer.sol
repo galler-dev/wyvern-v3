@@ -63,7 +63,7 @@ library WyvernAtomicizer {
     function atomicize2 (address[] calldata addrs, uint[] calldata values, bytes calldata calldata0, bytes calldata calldata1) external {
         require(addrs.length == values.length && addrs.length == 2, "Addresses and values must match in quantity 2");
 
-        (bool success,) = addrs[0].call{value: values[1]}(calldata0);
+        (bool success,) = addrs[0].call{value: values[0]}(calldata0);
         require(success, "Atomicizer2 firstcall failed");
 
         (success,) = addrs[1].call{value: values[1]}(calldata1);

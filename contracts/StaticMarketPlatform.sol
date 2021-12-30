@@ -227,7 +227,7 @@ contract StaticMarketPlatform is StaticCheckERC20, StaticCheckERC721, StaticChec
 
         checkETHSideWithOffset(addresses[1], uints[0], tokenIdAndNumeratorDenominator[2], counterdata);
 
-        return 1;
+        return new_fill;
     }
 
     function ETHForERC1155(bytes memory extra, address[7] memory addresses,
@@ -279,7 +279,7 @@ contract StaticMarketPlatform is StaticCheckERC20, StaticCheckERC721, StaticChec
 
         checkETHSideOneFeeWithOffset(addresses[1], tokenGiveAndFeeRecipient[1], uints[0], tokenIdAndNumeratorDenominatorAndFee[2], tokenIdAndNumeratorDenominatorAndFee[3], counterdata);
 
-        return 1;
+        return new_fill;
     }
 
     function ETHForERC1155WithOneFee(bytes memory extra, address[7] memory addresses,

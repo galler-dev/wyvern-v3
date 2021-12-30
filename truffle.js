@@ -5,12 +5,12 @@ var KlaytnHDWalletProvider = require('truffle-hdwallet-provider-klaytn')
 var Caver = require('caver-js')
 
 console.log("truffle.js, rinkebyMnemonic=" + process.env.RINKEBY_MNEMONIC + ", infuraKey=" + process.env.INFURA_KEY)
-var rinkebyMnemonic = JSON.parse(process.env.RINKEBY_MNEMONIC || '')
+var rinkebyMnemonic = process.env.RINKEBY_MNEMONIC || ''
 var mumbaiMnemonic = process.env.MUMBAI_MNEMONIC || ''
 var mainnetMnemonic = process.env.MAINNET_MNEMONIC || ''
 var klaytnPrivateKey = process.env.KLAYTN_PRIVATE_KEY || ''
 var baobabPrivateKey = process.env.BAOBAB_PRIVATE_KEY || ''
-var infuraKey = process.env.INFURA_KEY || '';
+var infuraKey = process.env.INFURA_KEY || ''
 
 var kasAccessKeyId = process.env.KAS_ACCESS_KEY_ID || ''
 var kasSecretAccessKey = process.env.KAS_SECRET_KEY || ''

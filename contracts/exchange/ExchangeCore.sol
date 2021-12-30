@@ -159,6 +159,8 @@ contract ExchangeCore is ReentrancyGuarded, StaticCaller, EIP712 {
         view
         returns (bool)
     {
+        require(maker != address(0), "invalid maker address");
+
         /* Memoized authentication. If order has already been partially filled, order must be authenticated. */
         if (fills[maker][hash] > 0) {
             return true;

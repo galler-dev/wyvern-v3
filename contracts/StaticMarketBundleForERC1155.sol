@@ -128,7 +128,7 @@ contract StaticMarketBundleForERC1155 is StaticMarketBase, StaticCheckERC20, Sta
         require(addresses[2] == atomicizer, "ETHForERC1155BundleWithTwoFees: call target must equal address of atomicizer");
         require(addresses[5] == atomicizer, "ETHForERC1155BundleWithTwoFees: countercall target must equal address of atomicizer");
         (address[] memory tokenAddrs, bytes[] memory allBytes) = extractInfoFromData(counterdata);
-        checkERC1155SideForBundle(allBytes, tokenAddrs, tokenIdsAndAmountsAndPrice, tokenGetAndFeeRecipient[0], addresses[4], addresses[1], 2);
+        checkERC1155SideForBundle(allBytes, tokenAddrs, tokenIdsAndAmountsAndPrice, tokenGetAndFeeRecipient[0], addresses[4], addresses[1], 3);
 
         checkETHSideTwoFeesWithOffset(addresses[4], tokenGetAndFeeRecipient[1], tokenGetAndFeeRecipient[2], uints[0], tokenIdsAndAmountsAndPrice[tokenIdsAndAmountsAndPrice.length - 3], tokenIdsAndAmountsAndPrice[tokenIdsAndAmountsAndPrice.length - 2], tokenIdsAndAmountsAndPrice[tokenIdsAndAmountsAndPrice.length - 1], data);
         return tokenIdsAndAmountsAndPrice[tokenIdsAndAmountsAndPrice.length - 3] + tokenIdsAndAmountsAndPrice[tokenIdsAndAmountsAndPrice.length - 2] + tokenIdsAndAmountsAndPrice[tokenIdsAndAmountsAndPrice.length - 1];

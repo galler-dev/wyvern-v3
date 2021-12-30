@@ -50,6 +50,10 @@ contract StaticMarket is StaticCheckERC20, StaticCheckERC1155, StaticCheckERC721
 		];
 		uint256 new_fill = SafeMath.add(uints[5],call_amounts[0]);
 		require(new_fill <= uints[1],"anyERC1155ForERC20: new fill exceeds maximum fill");
+        // call_amounts[1] erc20 amount / call_amounts[0] erc1155 amount = price per 1155
+        // tokenIdAndNumeratorDenominator[2] total sell price / tokenIdAndNumeratorDenominator[1] total 1155 amount = price per 1155
+        // so call_amounts[1] erc20 amount / call_amounts[0] = tokenIdAndNumeratorDenominator[2] total sell price / tokenIdAndNumeratorDenominator[1]
+        // change the equation to tokenIdAndNumeratorDenominator[1] * call_amounts[1] = tokenIdAndNumeratorDenominator[2] * call_amounts[0]
 		require(SafeMath.mul(tokenIdAndNumeratorDenominator[1], call_amounts[1]) == SafeMath.mul(tokenIdAndNumeratorDenominator[2], call_amounts[0]),"anyERC1155ForERC20: wrong ratio");
 		checkERC1155Side(data,addresses[1],addresses[4],tokenIdAndNumeratorDenominator[0],call_amounts[0]);
 		checkERC20Side(counterdata,addresses[4],addresses[1],call_amounts[1]);
@@ -80,6 +84,10 @@ contract StaticMarket is StaticCheckERC20, StaticCheckERC1155, StaticCheckERC721
 		];
 		uint256 new_fill = SafeMath.add(uints[5],call_amounts[1]);
 		require(new_fill <= uints[1],"anyERC20ForERC1155: new fill exceeds maximum fill");
+        // call_amounts[1] erc20 amount / call_amounts[0] erc1155 amount = price per 1155
+        // tokenIdAndNumeratorDenominator[1] total buy price / tokenIdAndNumeratorDenominator[2] total 1155 amount = price per 1155
+        // so call_amounts[1] erc20 amount / call_amounts[0] = tokenIdAndNumeratorDenominator[1] total sell price / tokenIdAndNumeratorDenominator[2]
+        // change the equation to tokenIdAndNumeratorDenominator[1] * call_amounts[0] = tokenIdAndNumeratorDenominator[2] * call_amounts[1]
 		require(SafeMath.mul(tokenIdAndNumeratorDenominator[1], call_amounts[0]) == SafeMath.mul(tokenIdAndNumeratorDenominator[2], call_amounts[1]),"anyERC20ForERC1155: wrong ratio");
 		checkERC1155Side(counterdata,addresses[4],addresses[1],tokenIdAndNumeratorDenominator[0],call_amounts[0]);
 		checkERC20Side(data,addresses[1],addresses[4],call_amounts[1]);
@@ -112,16 +120,18 @@ contract StaticMarket is StaticCheckERC20, StaticCheckERC1155, StaticCheckERC721
         uint256 new_fill = 0;
         uint256 fee = tokenIdAndNumeratorDenominatorAndFee[3];
         {
-            new_fill = SafeMath.add(uints[5],call_amounts[1]);
+            new_fill = SafeMath.add(SafeMath.add(uints[5],call_amounts[1]), fee);
             require(new_fill <= uints[1],"anyERC20ForERC1155WithOneFee: new fill exceeds maximum fill");
+            // (call_amounts[1] erc20 amount + fee) / call_amounts[0] erc1155 amount = price per 1155
+            // (tokenIdAndNumeratorDenominator[1] total buy price + fee) / tokenIdAndNumeratorDenominator[2] total 1155 amount = price per 1155
+            // (call_amounts[1] erc20 amount + fee) / call_amounts[0] = (tokenIdAndNumeratorDenominator[1] total buy price + fee)  / tokenIdAndNumeratorDenominator[2]
+            // change the equation to (tokenIdAndNumeratorDenominator[1] total buy price + fee) * call_amounts[0] = tokenIdAndNumeratorDenominator[2] * (call_amounts[1] erc20 amount + fee)
             require(SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[1] + fee, call_amounts[0]) == SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[2], call_amounts[1] + fee),"anyERC20ForERC1155WithOneFee: wrong ratio");
         }
         checkERC1155Side(counterdata,addresses[4],addresses[1],tokenIdAndNumeratorDenominatorAndFee[0],call_amounts[0]);
+        checkERC20SideWithOneFee(data, addresses[1], addresses[4], tokenGiveGetAndFeeRecipient[2], call_amounts[1], fee);
 
-        uint256 amount = SafeMath.mul(call_amounts[0], tokenIdAndNumeratorDenominatorAndFee[1] + fee) - fee;
-        checkERC20SideWithOneFee(data, addresses[1], addresses[4], tokenGiveGetAndFeeRecipient[2], amount, fee);
-
-        return new_fill + fee;
+        return new_fill;
     }
 
     function anyERC20ForERC1155WithTwoFees(bytes memory extra,
@@ -150,16 +160,18 @@ contract StaticMarket is StaticCheckERC20, StaticCheckERC1155, StaticCheckERC721
         uint256 fee = tokenIdAndNumeratorDenominatorAndFee[3];
         uint256 royaltyFee = tokenIdAndNumeratorDenominatorAndFee[4];
         {
-            new_fill = SafeMath.add(uints[5],call_amounts[1]);
+            new_fill = SafeMath.add(SafeMath.add(SafeMath.add(uints[5],call_amounts[1]), fee), royaltyFee);
             require(new_fill <= uints[1],"anyERC20ForERC1155WithTwoFees: new fill exceeds maximum fill");
+            // (call_amounts[1] erc20 amount + fee + royalty) / call_amounts[0] erc1155 amount = price per 1155
+            // (tokenIdAndNumeratorDenominator[1] total buy price + fee + royalty) / tokenIdAndNumeratorDenominator[2] total 1155 amount = price per 1155
+            // (call_amounts[1] erc20 amount + fee + royalty) / call_amounts[0] = (tokenIdAndNumeratorDenominator[1] total buy price + fee + royalty)  / tokenIdAndNumeratorDenominator[2]
+            // change the equation to (tokenIdAndNumeratorDenominator[1] total buy price + fee + royalty) * call_amounts[0] = tokenIdAndNumeratorDenominator[2] * (call_amounts[1] erc20 amount + fee + royalty)
             require(SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[1] + fee + royaltyFee, call_amounts[0]) == SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[2], call_amounts[1] + fee + royaltyFee),"anyERC20ForERC1155WithTwoFees: wrong ratio");
         }
         checkERC1155Side(counterdata,addresses[4],addresses[1],tokenIdAndNumeratorDenominatorAndFee[0],call_amounts[0]);
+        checkERC20SideWithTwoFees(data, addresses[1], addresses[4], tokenGiveGetAndFeeRecipient[2], tokenGiveGetAndFeeRecipient[3], call_amounts[1], fee, royaltyFee);
 
-        uint256 amount = SafeMath.mul(call_amounts[0], tokenIdAndNumeratorDenominatorAndFee[1] + fee + royaltyFee) - fee - royaltyFee;
-        checkERC20SideWithTwoFees(data, addresses[1], addresses[4], tokenGiveGetAndFeeRecipient[2], tokenGiveGetAndFeeRecipient[3], amount, fee, royaltyFee);
-
-        return new_fill + fee + royaltyFee;
+        return new_fill;
     }
 
     function anyERC1155ForERC20WithOneFee(bytes memory extra,
@@ -188,13 +200,15 @@ contract StaticMarket is StaticCheckERC20, StaticCheckERC1155, StaticCheckERC721
         {
             new_fill = SafeMath.add(uints[5],call_amounts[0]);
             require(new_fill <= uints[1],"anyERC1155ForERC20WithOneFee: new fill exceeds maximum fill");
+            // (call_amounts[1] erc20 amount + fee) / call_amounts[0] erc1155 amount = price per 1155
+            // (tokenIdAndNumeratorDenominator[2] total sell price + fee) / tokenIdAndNumeratorDenominator[1] total 1155 amount = price per 1155
+            // so (call_amounts[1] erc20 amount + fee) / call_amounts[0] = (tokenIdAndNumeratorDenominator[2] total sell price + fee) / tokenIdAndNumeratorDenominator[1]
+            // change the equation to tokenIdAndNumeratorDenominator[1] * (call_amounts[1] erc20 amount + fee)  = (tokenIdAndNumeratorDenominator[2] total sell price + fee) * call_amounts[0]
             require(SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[1], call_amounts[1] + fee) == SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[2] + fee, call_amounts[0]),"anyERC1155ForERC20WithOneFee: wrong ratio");
         }
 
         checkERC1155Side(data,addresses[1],addresses[4],tokenIdAndNumeratorDenominatorAndFee[0],call_amounts[0]);
-
-        uint256 amount = SafeMath.mul(call_amounts[0], tokenIdAndNumeratorDenominatorAndFee[2] + fee) - fee;
-        checkERC20SideWithOneFee(counterdata, addresses[4], addresses[1], tokenGiveGetAndFeeRecipient[2], amount, fee);
+        checkERC20SideWithOneFee(counterdata, addresses[4], addresses[1], tokenGiveGetAndFeeRecipient[2], call_amounts[1], fee);
 
         return new_fill;
     }
@@ -226,13 +240,15 @@ contract StaticMarket is StaticCheckERC20, StaticCheckERC1155, StaticCheckERC721
         {
             new_fill = SafeMath.add(uints[5],call_amounts[0]);
             require(new_fill <= uints[1],"anyERC1155ForERC20WithTwoFees: new fill exceeds maximum fill");
+            // (call_amounts[1] erc20 amount + fee + royalty) / call_amounts[0] erc1155 amount = price per 1155
+            // (tokenIdAndNumeratorDenominator[2] total sell price + fee + royalty) / tokenIdAndNumeratorDenominator[1] total 1155 amount = price per 1155
+            // so (call_amounts[1] erc20 amount + fee + royalty) / call_amounts[0] = (tokenIdAndNumeratorDenominator[2] total sell price + fee + royalty) / tokenIdAndNumeratorDenominator[1]
+            // change the equation to tokenIdAndNumeratorDenominator[1] * (call_amounts[1] erc20 amount + fee + royalty)  = (tokenIdAndNumeratorDenominator[2] total sell price + fee + royalty) * call_amounts[0]
             require(SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[1], call_amounts[1] + fee + royaltyFee) == SafeMath.mul(tokenIdAndNumeratorDenominatorAndFee[2] + fee + royaltyFee, call_amounts[0]),"anyERC1155ForERC20WithTwoFees: wrong ratio");
         }
 
         checkERC1155Side(data,addresses[1],addresses[4],tokenIdAndNumeratorDenominatorAndFee[0],call_amounts[0]);
-
-        uint256 amount = SafeMath.mul(call_amounts[0], tokenIdAndNumeratorDenominatorAndFee[2] + fee + royaltyFee) - fee - royaltyFee;
-        checkERC20SideWithTwoFees(counterdata, addresses[4], addresses[1], tokenGiveGetAndFeeRecipient[2], tokenGiveGetAndFeeRecipient[3], amount, fee, royaltyFee);
+        checkERC20SideWithTwoFees(counterdata, addresses[4], addresses[1], tokenGiveGetAndFeeRecipient[2], tokenGiveGetAndFeeRecipient[3], call_amounts[1], fee, royaltyFee);
 
         return new_fill;
     }
